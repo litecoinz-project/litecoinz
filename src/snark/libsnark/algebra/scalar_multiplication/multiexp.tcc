@@ -30,17 +30,17 @@ template<mp_size_t n>
 class ordered_exponent {
 // to use std::push_heap and friends later
 public:
-    uint64_t idx;
+    size_t idx;
     bigint<n> r;
 
-    ordered_exponent(const uint64_t idx, const bigint<n> &r) : idx(idx), r(r) {};
+    ordered_exponent(const size_t idx, const bigint<n> &r) : idx(idx), r(r) {};
 
     bool operator<(const ordered_exponent<n> &other) const
     {
 #if defined(__x86_64__) && defined(USE_ASM)
         if (n == 3)
         {
-            int64_t res;
+            long res;
             __asm__
                 ("// check for overflow           \n\t"
                  "mov $0, %[res]                  \n\t"
@@ -58,7 +58,7 @@ public:
         }
         else if (n == 4)
         {
-            int64_t res;
+            long res;
             __asm__
                 ("// check for overflow           \n\t"
                  "mov $0, %[res]                  \n\t"
@@ -77,7 +77,7 @@ public:
         }
         else if (n == 5)
         {
-            int64_t res;
+            long res;
             __asm__
                 ("// check for overflow           \n\t"
                  "mov $0, %[res]                  \n\t"
@@ -169,15 +169,15 @@ T multi_exp_inner(typename std::vector<T>::const_iterator vec_start,
     }
 
     std::vector<ordered_exponent<n> > opt_q;
-    const uint64_t vec_len = scalar_end - scalar_start;
-    const uint64_t odd_vec_len = (vec_len % 2 == 1 ? vec_len : vec_len + 1);
+    const size_t vec_len = scalar_end - scalar_start;
+    const size_t odd_vec_len = (vec_len % 2 == 1 ? vec_len : vec_len + 1);
     opt_q.reserve(odd_vec_len);
     std::vector<T> g;
     g.reserve(odd_vec_len);
 
     typename std::vector<T>::const_iterator vec_it;
     typename std::vector<FieldT>::const_iterator scalar_it;
-    uint64_t i;
+    size_t i;
     for (i=0, vec_it = vec_start, scalar_it = scalar_start; vec_it != vec_end; ++vec_it, ++scalar_it, ++i)
     {
         g.emplace_back(*vec_it);
@@ -190,7 +190,7 @@ T multi_exp_inner(typename std::vector<T>::const_iterator vec_start,
     if (vec_len != odd_vec_len)
     {
         g.emplace_back(T::zero());
-        opt_q.emplace_back(ordered_exponent<n>(odd_vec_len - 1, bigint<n>(UINT64_C(0))));
+        opt_q.emplace_back(ordered_exponent<n>(odd_vec_len - 1, bigint<n>(0ul)));
     }
     assert(g.size() % 2 == 1);
     assert(opt_q.size() == g.size());
@@ -202,7 +202,7 @@ T multi_exp_inner(typename std::vector<T>::const_iterator vec_start,
         ordered_exponent<n> &a = opt_q[0];
         ordered_exponent<n> &b = (opt_q[1] < opt_q[2] ? opt_q[2] : opt_q[1]);
 
-        const uint64_t abits = a.r.num_bits();
+        const size_t abits = a.r.num_bits();
 
         if (b.r.is_zero())
         {
@@ -211,10 +211,10 @@ T multi_exp_inner(typename std::vector<T>::const_iterator vec_start,
             break;
         }
 
-        const uint64_t bbits = b.r.num_bits();
-        const uint64_t limit = (abits-bbits >= 20 ? 20 : abits-bbits);
+        const size_t bbits = b.r.num_bits();
+        const size_t limit = (abits-bbits >= 20 ? 20 : abits-bbits);
 
-        if (bbits < UINT64_C(1)<<limit)
+        if (bbits < 1ul<<limit)
         {
             /*
               In this case, exponentiating to the power of a is cheaper than
@@ -239,7 +239,7 @@ T multi_exp_inner(typename std::vector<T>::const_iterator vec_start,
         // regardless of whether a was cleared or subtracted from we push it down, then take back up
 
         /* heapify A down */
-        uint64_t a_pos = 0;
+        size_t a_pos = 0;
         while (2*a_pos + 2< odd_vec_len)
         {
             // this is a max-heap so to maintain a heap property we swap with the largest of the two
@@ -271,16 +271,16 @@ T multi_exp(typename std::vector<T>::const_iterator vec_start,
             typename std::vector<T>::const_iterator vec_end,
             typename std::vector<FieldT>::const_iterator scalar_start,
             typename std::vector<FieldT>::const_iterator scalar_end,
-            const uint64_t chunks,
+            const size_t chunks,
             const bool use_multiexp)
 {
-    const uint64_t total = vec_end - vec_start;
+    const size_t total = vec_end - vec_start;
     if (total < chunks)
     {
         return naive_exp<T, FieldT>(vec_start, vec_end, scalar_start, scalar_end);
     }
 
-    const uint64_t one = total/chunks;
+    const size_t one = total/chunks;
 
     std::vector<T> partial(chunks, T::zero());
 
@@ -289,7 +289,7 @@ T multi_exp(typename std::vector<T>::const_iterator vec_start,
 #ifdef MULTICORE
 #pragma omp parallel for
 #endif
-        for (uint64_t i = 0; i < chunks; ++i)
+        for (size_t i = 0; i < chunks; ++i)
         {
             partial[i] = multi_exp_inner<T, FieldT>(vec_start + i*one,
                                                     (i == chunks-1 ? vec_end : vec_start + (i+1)*one),
@@ -302,7 +302,7 @@ T multi_exp(typename std::vector<T>::const_iterator vec_start,
 #ifdef MULTICORE
 #pragma omp parallel for
 #endif
-        for (uint64_t i = 0; i < chunks; ++i)
+        for (size_t i = 0; i < chunks; ++i)
         {
             partial[i] = naive_exp<T, FieldT>(vec_start + i*one,
                                               (i == chunks-1 ? vec_end : vec_start + (i+1)*one),
@@ -313,7 +313,7 @@ T multi_exp(typename std::vector<T>::const_iterator vec_start,
 
     T final = T::zero();
 
-    for (uint64_t i = 0; i < chunks; ++i)
+    for (size_t i = 0; i < chunks; ++i)
     {
         final = final + partial[i];
     }
@@ -326,7 +326,7 @@ T multi_exp_with_mixed_addition(typename std::vector<T>::const_iterator vec_star
                                 typename std::vector<T>::const_iterator vec_end,
                                 typename std::vector<FieldT>::const_iterator scalar_start,
                                 typename std::vector<FieldT>::const_iterator scalar_end,
-                                const uint64_t chunks,
+                                const size_t chunks,
                                 const bool use_multiexp)
 {
     assert(std::distance(vec_start, vec_end) == std::distance(scalar_start, scalar_end));
@@ -341,9 +341,9 @@ T multi_exp_with_mixed_addition(typename std::vector<T>::const_iterator vec_star
 
     T acc = T::zero();
 
-    uint64_t num_skip = 0;
-    uint64_t num_add = 0;
-    uint64_t num_other = 0;
+    size_t num_skip = 0;
+    size_t num_add = 0;
+    size_t num_other = 0;
 
     for (; scalar_it != scalar_end; ++scalar_it, ++value_it)
     {
@@ -378,7 +378,7 @@ T multi_exp_with_mixed_addition(typename std::vector<T>::const_iterator vec_star
 }
 
 template<typename T>
-uint64_t get_exp_window_size(const uint64_t num_scalars)
+size_t get_exp_window_size(const size_t num_scalars)
 {
     if (T::fixed_base_exp_window_table.empty())
     {
@@ -388,8 +388,8 @@ uint64_t get_exp_window_size(const uint64_t num_scalars)
         return 17;
 #endif
     }
-    uint64_t window = 1;
-    for (int64_t i = T::fixed_base_exp_window_table.size()-1; i >= 0; --i)
+    size_t window = 1;
+    for (long i = T::fixed_base_exp_window_table.size()-1; i >= 0; --i)
     {
 #ifdef DEBUG
         if (!inhibit_profiling_info)
@@ -410,19 +410,19 @@ uint64_t get_exp_window_size(const uint64_t num_scalars)
     }
 
 #ifdef LOWMEM
-    window = std::min((uint64_t)14, window);
+    window = std::min((size_t)14, window);
 #endif
     return window;
 }
 
 template<typename T>
-window_table<T> get_window_table(const uint64_t scalar_size,
-                                 const uint64_t window,
+window_table<T> get_window_table(const size_t scalar_size,
+                                 const size_t window,
                                  const T &g)
 {
-    const uint64_t in_window = UINT64_C(1)<<window;
-    const uint64_t outerc = (scalar_size+window-1)/window;
-    const uint64_t last_in_window = UINT64_C(1)<<(scalar_size - (outerc-1)*window);
+    const size_t in_window = 1ul<<window;
+    const size_t outerc = (scalar_size+window-1)/window;
+    const size_t last_in_window = 1ul<<(scalar_size - (outerc-1)*window);
 #ifdef DEBUG
     if (!inhibit_profiling_info)
     {
@@ -434,17 +434,17 @@ window_table<T> get_window_table(const uint64_t scalar_size,
 
     T gouter = g;
 
-    for (uint64_t outer = 0; outer < outerc; ++outer)
+    for (size_t outer = 0; outer < outerc; ++outer)
     {
         T ginner = T::zero();
-        uint64_t cur_in_window = outer == outerc-1 ? last_in_window : in_window;
-        for (uint64_t inner = 0; inner < cur_in_window; ++inner)
+        size_t cur_in_window = outer == outerc-1 ? last_in_window : in_window;
+        for (size_t inner = 0; inner < cur_in_window; ++inner)
         {
             powers_of_g[outer][inner] = ginner;
             ginner = ginner + gouter;
         }
 
-        for (uint64_t i = 0; i < window; ++i)
+        for (size_t i = 0; i < window; ++i)
         {
             gouter = gouter + gouter;
         }
@@ -454,21 +454,21 @@ window_table<T> get_window_table(const uint64_t scalar_size,
 }
 
 template<typename T, typename FieldT>
-T windowed_exp(const uint64_t scalar_size,
-               const uint64_t window,
+T windowed_exp(const size_t scalar_size,
+               const size_t window,
                const window_table<T> &powers_of_g,
                const FieldT &pow)
 {
-    const uint64_t outerc = (scalar_size+window-1)/window;
+    const size_t outerc = (scalar_size+window-1)/window;
     const bigint<FieldT::num_limbs> pow_val = pow.as_bigint();
 
     /* exp */
     T res = powers_of_g[0][0];
 
-    for (uint64_t outer = 0; outer < outerc; ++outer)
+    for (size_t outer = 0; outer < outerc; ++outer)
     {
-        uint64_t inner = 0;
-        for (uint64_t i = 0; i < window; ++i)
+        size_t inner = 0;
+        for (size_t i = 0; i < window; ++i)
         {
             if (pow_val.test_bit(outer*window + i))
             {
@@ -483,8 +483,8 @@ T windowed_exp(const uint64_t scalar_size,
 }
 
 template<typename T, typename FieldT>
-std::vector<T> batch_exp(const uint64_t scalar_size,
-                         const uint64_t window,
+std::vector<T> batch_exp(const size_t scalar_size,
+                         const size_t window,
                          const window_table<T> &table,
                          const std::vector<FieldT> &v)
 {
@@ -497,7 +497,7 @@ std::vector<T> batch_exp(const uint64_t scalar_size,
 #ifdef MULTICORE
 #pragma omp parallel for
 #endif
-    for (uint64_t i = 0; i < v.size(); ++i)
+    for (size_t i = 0; i < v.size(); ++i)
     {
         res[i] = windowed_exp(scalar_size, window, table, v[i]);
 
@@ -517,8 +517,8 @@ std::vector<T> batch_exp(const uint64_t scalar_size,
 }
 
 template<typename T, typename FieldT>
-std::vector<T> batch_exp_with_coeff(const uint64_t scalar_size,
-                                    const uint64_t window,
+std::vector<T> batch_exp_with_coeff(const size_t scalar_size,
+                                    const size_t window,
                                     const window_table<T> &table,
                                     const FieldT &coeff,
                                     const std::vector<FieldT> &v)
@@ -532,7 +532,7 @@ std::vector<T> batch_exp_with_coeff(const uint64_t scalar_size,
 #ifdef MULTICORE
 #pragma omp parallel for
 #endif
-    for (uint64_t i = 0; i < v.size(); ++i)
+    for (size_t i = 0; i < v.size(); ++i)
     {
         res[i] = windowed_exp(scalar_size, window, table, coeff * v[i]);
 
@@ -557,7 +557,7 @@ void batch_to_special(std::vector<T> &vec)
     enter_block("Batch-convert elements to special form");
 
     std::vector<T> non_zero_vec;
-    for (uint64_t i = 0; i < vec.size(); ++i)
+    for (size_t i = 0; i < vec.size(); ++i)
     {
         if (!vec[i].is_zero())
         {
@@ -570,7 +570,7 @@ void batch_to_special(std::vector<T> &vec)
     T zero_special = T::zero();
     zero_special.to_special();
 
-    for (uint64_t i = 0; i < vec.size(); ++i)
+    for (size_t i = 0; i < vec.size(); ++i)
     {
         if (!vec[i].is_zero())
         {

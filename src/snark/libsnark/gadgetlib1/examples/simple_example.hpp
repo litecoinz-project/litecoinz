@@ -13,8 +13,8 @@
 namespace libsnark {
 
 template<typename FieldT>
-r1cs_example<FieldT> gen_r1cs_example_from_protoboard(const uint64_t num_constraints,
-                                                      const uint64_t num_inputs);
+r1cs_example<FieldT> gen_r1cs_example_from_protoboard(const size_t num_constraints,
+                                                      const size_t num_inputs);
 
 } // libsnark
 

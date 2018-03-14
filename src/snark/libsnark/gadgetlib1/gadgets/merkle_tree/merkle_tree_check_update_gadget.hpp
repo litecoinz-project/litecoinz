@@ -44,8 +44,8 @@ private:
 
 public:
 
-    const uint64_t digest_size;
-    const uint64_t tree_depth;
+    const size_t digest_size;
+    const size_t tree_depth;
 
     pb_variable_array<FieldT> address_bits;
     digest_variable<FieldT> prev_leaf_digest;
@@ -61,7 +61,7 @@ public:
        comment in the implementation of generate_r1cs_constraints() */
 
     merkle_tree_check_update_gadget(protoboard<FieldT> &pb,
-                                    const uint64_t tree_depth,
+                                    const size_t tree_depth,
                                     const pb_variable_array<FieldT> &address_bits,
                                     const digest_variable<FieldT> &prev_leaf_digest,
                                     const digest_variable<FieldT> &prev_root_digest,
@@ -75,9 +75,9 @@ public:
     void generate_r1cs_constraints();
     void generate_r1cs_witness();
 
-    static uint64_t root_size_in_bits();
+    static size_t root_size_in_bits();
     /* for debugging purposes */
-    static uint64_t expected_constraints(const uint64_t tree_depth);
+    static size_t expected_constraints(const size_t tree_depth);
 };
 
 template<typename FieldT, typename HashT>

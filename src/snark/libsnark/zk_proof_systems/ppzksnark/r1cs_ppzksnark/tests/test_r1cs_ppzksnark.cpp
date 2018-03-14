@@ -22,8 +22,8 @@
 using namespace libsnark;
 
 template<typename ppT>
-void test_r1cs_ppzksnark(uint64_t num_constraints,
-                         uint64_t input_size)
+void test_r1cs_ppzksnark(size_t num_constraints,
+                         size_t input_size)
 {
     print_header("(enter) Test R1CS ppzkSNARK");
 

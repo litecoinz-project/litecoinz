@@ -37,28 +37,28 @@ namespace libsnark {
 template<typename FieldT>
 void _basic_serial_radix2_FFT(std::vector<FieldT> &a, const FieldT &omega)
 {
-    const uint64_t n = a.size(), logn = log2(n);
+    const size_t n = a.size(), logn = log2(n);
     assert(n == (1u << logn));
 
     /* swapping in place (from Storer's book) */
-    for (uint64_t k = 0; k < n; ++k)
+    for (size_t k = 0; k < n; ++k)
     {
-        const uint64_t rk = bitreverse(k, logn);
+        const size_t rk = bitreverse(k, logn);
         if (k < rk)
             std::swap(a[k], a[rk]);
     }
 
-    uint64_t m = 1; // invariant: m = 2^{s-1}
-    for (uint64_t s = 1; s <= logn; ++s)
+    size_t m = 1; // invariant: m = 2^{s-1}
+    for (size_t s = 1; s <= logn; ++s)
     {
         // w_m is 2^s-th root of unity now
         const FieldT w_m = omega^(n/(2*m));
 
         asm volatile ("/* pre-inner */");
-        for (uint64_t k = 0; k < n; k += 2*m)
+        for (size_t k = 0; k < n; k += 2*m)
         {
             FieldT w = FieldT::one();
-            for (uint64_t j = 0; j < m; ++j)
+            for (size_t j = 0; j < m; ++j)
             {
                 const FieldT t = w * a[k+j+m];
                 a[k+j+m] = a[k+j] - t;
@@ -72,13 +72,13 @@ void _basic_serial_radix2_FFT(std::vector<FieldT> &a, const FieldT &omega)
 }
 
 template<typename FieldT>
-void _basic_parallel_radix2_FFT_inner(std::vector<FieldT> &a, const FieldT &omega, const uint64_t log_cpus)
+void _basic_parallel_radix2_FFT_inner(std::vector<FieldT> &a, const FieldT &omega, const size_t log_cpus)
 {
-    const uint64_t num_cpus = UINT64_C(1)<<log_cpus;
+    const size_t num_cpus = 1ul<<log_cpus;
 
-    const uint64_t m = a.size();
-    const uint64_t log_m = log2(m);
-    assert(m == UINT64_C(1)<<log_m);
+    const size_t m = a.size();
+    const size_t log_m = log2(m);
+    assert(m == 1ul<<log_m);
 
     if (log_m < log_cpus)
     {
@@ -88,26 +88,26 @@ void _basic_parallel_radix2_FFT_inner(std::vector<FieldT> &a, const FieldT &omeg
 
     enter_block("Shuffle inputs");
     std::vector<std::vector<FieldT> > tmp(num_cpus);
-    for (uint64_t j = 0; j < num_cpus; ++j)
+    for (size_t j = 0; j < num_cpus; ++j)
     {
-        tmp[j].resize(UINT64_C(1)<<(log_m-log_cpus), FieldT::zero());
+        tmp[j].resize(1ul<<(log_m-log_cpus), FieldT::zero());
     }
 
 #ifdef MULTICORE
     #pragma omp parallel for
 #endif
-    for (uint64_t j = 0; j < num_cpus; ++j)
+    for (size_t j = 0; j < num_cpus; ++j)
     {
         const FieldT omega_j = omega^j;
         const FieldT omega_step = omega^(j<<(log_m - log_cpus));
 
         FieldT elt = FieldT::one();
-        for (uint64_t i = 0; i < UINT64_C(1)<<(log_m - log_cpus); ++i)
+        for (size_t i = 0; i < 1ul<<(log_m - log_cpus); ++i)
         {
-            for (uint64_t s = 0; s < num_cpus; ++s)
+            for (size_t s = 0; s < num_cpus; ++s)
             {
                 // invariant: elt is omega^(j*idx)
-                const uint64_t idx = (i + (s<<(log_m - log_cpus))) % (1u << log_m);
+                const size_t idx = (i + (s<<(log_m - log_cpus))) % (1u << log_m);
                 tmp[j][i] += a[idx] * elt;
                 elt *= omega_step;
             }
@@ -122,7 +122,7 @@ void _basic_parallel_radix2_FFT_inner(std::vector<FieldT> &a, const FieldT &omeg
 #ifdef MULTICORE
     #pragma omp parallel for
 #endif
-    for (uint64_t j = 0; j < num_cpus; ++j)
+    for (size_t j = 0; j < num_cpus; ++j)
     {
         _basic_serial_radix2_FFT(tmp[j], omega_num_cpus);
     }
@@ -133,9 +133,9 @@ void _basic_parallel_radix2_FFT_inner(std::vector<FieldT> &a, const FieldT &omeg
 #ifdef MULTICORE
     #pragma omp parallel for
 #endif
-    for (uint64_t i = 0; i < num_cpus; ++i)
+    for (size_t i = 0; i < num_cpus; ++i)
     {
-        for (uint64_t j = 0; j < UINT64_C(1)<<(log_m - log_cpus); ++j)
+        for (size_t j = 0; j < 1ul<<(log_m - log_cpus); ++j)
         {
             // now: i = idx >> (log_m - log_cpus) and j = idx % (1u << (log_m - log_cpus)), for idx = ((i<<(log_m-log_cpus))+j) % (1u << log_m)
             a[(j<<log_cpus) + i] = tmp[i][j];
@@ -148,11 +148,11 @@ template<typename FieldT>
 void _basic_parallel_radix2_FFT(std::vector<FieldT> &a, const FieldT &omega)
 {
 #ifdef MULTICORE
-    const uint64_t num_cpus = omp_get_max_threads();
+    const size_t num_cpus = omp_get_max_threads();
 #else
-    const uint64_t num_cpus = 1;
+    const size_t num_cpus = 1;
 #endif
-    const uint64_t log_cpus = ((num_cpus & (num_cpus - 1)) == 0 ? log2(num_cpus) : log2(num_cpus) - 1);
+    const size_t log_cpus = ((num_cpus & (num_cpus - 1)) == 0 ? log2(num_cpus) : log2(num_cpus) - 1);
 
 #ifdef DEBUG
     print_indent(); printf("* Invoking parallel FFT on 2^%zu CPUs (omp_get_max_threads = %zu)\n", log_cpus, num_cpus);
@@ -173,7 +173,7 @@ void _multiply_by_coset(std::vector<FieldT> &a, const FieldT &g)
 {
     //enter_block("Multiply by coset");
     FieldT u = g;
-    for (uint64_t i = 1; i < a.size(); ++i)
+    for (size_t i = 1; i < a.size(); ++i)
     {
         a[i] *= u;
         u *= g;
@@ -182,7 +182,7 @@ void _multiply_by_coset(std::vector<FieldT> &a, const FieldT &g)
 }
 
 template<typename FieldT>
-std::vector<FieldT> _basic_radix2_lagrange_coeffs(const uint64_t m, const FieldT &t)
+std::vector<FieldT> _basic_radix2_lagrange_coeffs(const size_t m, const FieldT &t)
 {
     if (m == 1)
     {
@@ -203,7 +203,7 @@ std::vector<FieldT> _basic_radix2_lagrange_coeffs(const uint64_t m, const FieldT
     if ((t^m) == (FieldT::one()))
     {
         FieldT omega_i = FieldT::one();
-        for (uint64_t i = 0; i < m; ++i)
+        for (size_t i = 0; i < m; ++i)
         {
             if (omega_i == t) // i.e., t equals omega^i
             {
@@ -227,7 +227,7 @@ std::vector<FieldT> _basic_radix2_lagrange_coeffs(const uint64_t m, const FieldT
     const FieldT Z = (t^m)-FieldT::one();
     FieldT l = Z * FieldT(m).inverse();
     FieldT r = FieldT::one();
-    for (uint64_t i = 0; i < m; ++i)
+    for (size_t i = 0; i < m; ++i)
     {
         u[i] = l * (t - r).inverse();
         l *= omega;

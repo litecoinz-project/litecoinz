@@ -146,7 +146,7 @@ EOF
     if [ $ARCHIVE_RESULT -ne 0 ]; then
         litecoinzd_stop
         echo
-        echo "Please generate it using qa/zcash/create_benchmark_archive.py"
+        echo "Please generate it using qa/litecoinz/create_benchmark_archive.py"
         echo "and place it in the base directory of the repository."
         echo "Usage details are inside the Python script."
         exit 1

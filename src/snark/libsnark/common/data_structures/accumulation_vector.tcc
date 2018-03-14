@@ -29,22 +29,22 @@ bool accumulation_vector<T>::is_fully_accumulated() const
 }
 
 template<typename T>
-uint64_t accumulation_vector<T>::domain_size() const
+size_t accumulation_vector<T>::domain_size() const
 {
     return rest.domain_size();
 }
 
 template<typename T>
-uint64_t accumulation_vector<T>::size() const
+size_t accumulation_vector<T>::size() const
 {
     return rest.domain_size();
 }
 
 template<typename T>
-uint64_t accumulation_vector<T>::size_in_bits() const
+size_t accumulation_vector<T>::size_in_bits() const
 {
-    const uint64_t first_size_in_bits = T::size_in_bits();
-    const uint64_t rest_size_in_bits = rest.size_in_bits();
+    const size_t first_size_in_bits = T::size_in_bits();
+    const size_t rest_size_in_bits = rest.size_in_bits();
     return first_size_in_bits + rest_size_in_bits;
 }
 
@@ -52,7 +52,7 @@ template<typename T>
 template<typename FieldT>
 accumulation_vector<T> accumulation_vector<T>::accumulate_chunk(const typename std::vector<FieldT>::const_iterator &it_begin,
                                                                 const typename std::vector<FieldT>::const_iterator &it_end,
-                                                                const uint64_t offset) const
+                                                                const size_t offset) const
 {
     std::pair<T, sparse_vector<T> > acc_result = rest.template accumulate<FieldT>(it_begin, it_end, offset);
     T new_first = first + acc_result.first;

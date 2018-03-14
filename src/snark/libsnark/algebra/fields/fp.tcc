@@ -167,7 +167,7 @@ void Fp_model<n,modulus>::mul_reduce(const bigint<n> &other)
           Handbook of Applied Cryptography
           <http://cacr.uwaterloo.ca/hac/about/chap14.pdf>.
          */
-        for (uint64_t i = 0; i < n; ++i)
+        for (size_t i = 0; i < n; ++i)
         {
             mp_limb_t k = inv * res[i];
             /* calculate res = res + k * mod * b^i */
@@ -194,7 +194,7 @@ Fp_model<n,modulus>::Fp_model(const bigint<n> &b)
 }
 
 template<mp_size_t n, const bigint<n>& modulus>
-Fp_model<n,modulus>::Fp_model(const int64_t x, const bool is_unsigned)
+Fp_model<n,modulus>::Fp_model(const long x, const bool is_unsigned)
 {
     if (is_unsigned || x >= 0)
     {
@@ -210,7 +210,7 @@ Fp_model<n,modulus>::Fp_model(const int64_t x, const bool is_unsigned)
 }
 
 template<mp_size_t n, const bigint<n>& modulus>
-void Fp_model<n,modulus>::set_ulong(const uint64_t x)
+void Fp_model<n,modulus>::set_ulong(const unsigned long x)
 {
     this->mont_repr.clear();
     this->mont_repr.data[0] = x;
@@ -237,7 +237,7 @@ bigint<n> Fp_model<n,modulus>::as_bigint() const
 }
 
 template<mp_size_t n, const bigint<n>& modulus>
-uint64_t Fp_model<n,modulus>::as_ulong() const
+unsigned long Fp_model<n,modulus>::as_ulong() const
 {
     return this->as_bigint().as_ulong();
 }
@@ -502,7 +502,7 @@ Fp_model<n,modulus>& Fp_model<n,modulus>::operator*=(const Fp_model<n,modulus>& 
 }
 
 template<mp_size_t n, const bigint<n>& modulus>
-Fp_model<n,modulus>& Fp_model<n,modulus>::operator^=(const uint64_t pow)
+Fp_model<n,modulus>& Fp_model<n,modulus>::operator^=(const unsigned long pow)
 {
     (*this) = power<Fp_model<n, modulus> >(*this, pow);
     return (*this);
@@ -538,7 +538,7 @@ Fp_model<n,modulus> Fp_model<n,modulus>::operator*(const Fp_model<n,modulus>& ot
 }
 
 template<mp_size_t n, const bigint<n>& modulus>
-Fp_model<n,modulus> Fp_model<n,modulus>::operator^(const uint64_t pow) const
+Fp_model<n,modulus> Fp_model<n,modulus>::operator^(const unsigned long pow) const
 {
     Fp_model<n, modulus> r(*this);
     return (r ^= pow);
@@ -684,13 +684,13 @@ Fp_model<n, modulus> Fp_model<n,modulus>::random_element() /// returns random el
         r.mont_repr.randomize();
 
         /* clear all bits higher than MSB of modulus */
-        uint64_t bitno = GMP_NUMB_BITS * n - 1;
+        size_t bitno = GMP_NUMB_BITS * n - 1;
         while (modulus.test_bit(bitno) == false)
         {
-            const uint64_t part = bitno/GMP_NUMB_BITS;
-            const uint64_t bit = bitno - (GMP_NUMB_BITS*part);
+            const std::size_t part = bitno/GMP_NUMB_BITS;
+            const std::size_t bit = bitno - (GMP_NUMB_BITS*part);
 
-            r.mont_repr.data[part] &= ~(UINT64_C(1)<<bit);
+            r.mont_repr.data[part] &= ~(1ul<<bit);
 
             bitno--;
         }
@@ -710,7 +710,7 @@ Fp_model<n,modulus> Fp_model<n,modulus>::sqrt() const
 
     Fp_model<n,modulus> one = Fp_model<n,modulus>::one();
 
-    uint64_t v = Fp_model<n,modulus>::s;
+    size_t v = Fp_model<n,modulus>::s;
     Fp_model<n,modulus> z = Fp_model<n,modulus>::nqr_to_t;
     Fp_model<n,modulus> w = (*this)^Fp_model<n,modulus>::t_minus_1_over_2;
     Fp_model<n,modulus> x = (*this) * w;
@@ -719,7 +719,7 @@ Fp_model<n,modulus> Fp_model<n,modulus>::sqrt() const
 
     // check if square with euler's criterion
     Fp_model<n,modulus> check = b;
-    for (uint64_t i = 0; i < v-1; ++i)
+    for (size_t i = 0; i < v-1; ++i)
     {
         check = check.squared();
     }
@@ -734,7 +734,7 @@ Fp_model<n,modulus> Fp_model<n,modulus>::sqrt() const
 
     while (b != one)
     {
-        uint64_t m = 0;
+        size_t m = 0;
         Fp_model<n,modulus> b2m = b;
         while (b2m != one)
         {

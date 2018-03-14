@@ -44,41 +44,41 @@ class qap_witness;
 template<typename FieldT>
 class qap_instance {
 private:
-    uint64_t num_variables_;
-    uint64_t degree_;
-    uint64_t num_inputs_;
+    size_t num_variables_;
+    size_t degree_;
+    size_t num_inputs_;
 
 public:
     std::shared_ptr<evaluation_domain<FieldT> > domain;
 
-    std::vector<std::map<uint64_t, FieldT> > A_in_Lagrange_basis;
-    std::vector<std::map<uint64_t, FieldT> > B_in_Lagrange_basis;
-    std::vector<std::map<uint64_t, FieldT> > C_in_Lagrange_basis;
+    std::vector<std::map<size_t, FieldT> > A_in_Lagrange_basis;
+    std::vector<std::map<size_t, FieldT> > B_in_Lagrange_basis;
+    std::vector<std::map<size_t, FieldT> > C_in_Lagrange_basis;
 
     qap_instance(const std::shared_ptr<evaluation_domain<FieldT> > &domain,
-                 const uint64_t num_variables,
-                 const uint64_t degree,
-                 const uint64_t num_inputs,
-                 const std::vector<std::map<uint64_t, FieldT> > &A_in_Lagrange_basis,
-                 const std::vector<std::map<uint64_t, FieldT> > &B_in_Lagrange_basis,
-                 const std::vector<std::map<uint64_t, FieldT> > &C_in_Lagrange_basis);
+                 const size_t num_variables,
+                 const size_t degree,
+                 const size_t num_inputs,
+                 const std::vector<std::map<size_t, FieldT> > &A_in_Lagrange_basis,
+                 const std::vector<std::map<size_t, FieldT> > &B_in_Lagrange_basis,
+                 const std::vector<std::map<size_t, FieldT> > &C_in_Lagrange_basis);
 
     qap_instance(const std::shared_ptr<evaluation_domain<FieldT> > &domain,
-                 const uint64_t num_variables,
-                 const uint64_t degree,
-                 const uint64_t num_inputs,
-                 std::vector<std::map<uint64_t, FieldT> > &&A_in_Lagrange_basis,
-                 std::vector<std::map<uint64_t, FieldT> > &&B_in_Lagrange_basis,
-                 std::vector<std::map<uint64_t, FieldT> > &&C_in_Lagrange_basis);
+                 const size_t num_variables,
+                 const size_t degree,
+                 const size_t num_inputs,
+                 std::vector<std::map<size_t, FieldT> > &&A_in_Lagrange_basis,
+                 std::vector<std::map<size_t, FieldT> > &&B_in_Lagrange_basis,
+                 std::vector<std::map<size_t, FieldT> > &&C_in_Lagrange_basis);
 
     qap_instance(const qap_instance<FieldT> &other) = default;
     qap_instance(qap_instance<FieldT> &&other) = default;
     qap_instance& operator=(const qap_instance<FieldT> &other) = default;
     qap_instance& operator=(qap_instance<FieldT> &&other) = default;
 
-    uint64_t num_variables() const;
-    uint64_t degree() const;
-    uint64_t num_inputs() const;
+    size_t num_variables() const;
+    size_t degree() const;
+    size_t num_inputs() const;
 
     bool is_satisfied(const qap_witness<FieldT> &witness) const;
 };
@@ -97,9 +97,9 @@ public:
 template<typename FieldT>
 class qap_instance_evaluation {
 private:
-    uint64_t num_variables_;
-    uint64_t degree_;
-    uint64_t num_inputs_;
+    size_t num_variables_;
+    size_t degree_;
+    size_t num_inputs_;
 public:
     std::shared_ptr<evaluation_domain<FieldT> > domain;
 
@@ -110,9 +110,9 @@ public:
     FieldT Zt;
 
     qap_instance_evaluation(const std::shared_ptr<evaluation_domain<FieldT> > &domain,
-                            const uint64_t num_variables,
-                            const uint64_t degree,
-                            const uint64_t num_inputs,
+                            const size_t num_variables,
+                            const size_t degree,
+                            const size_t num_inputs,
                             const FieldT &t,
                             const std::vector<FieldT> &At,
                             const std::vector<FieldT> &Bt,
@@ -120,9 +120,9 @@ public:
                             const std::vector<FieldT> &Ht,
                             const FieldT &Zt);
     qap_instance_evaluation(const std::shared_ptr<evaluation_domain<FieldT> > &domain,
-                            const uint64_t num_variables,
-                            const uint64_t degree,
-                            const uint64_t num_inputs,
+                            const size_t num_variables,
+                            const size_t degree,
+                            const size_t num_inputs,
                             const FieldT &t,
                             std::vector<FieldT> &&At,
                             std::vector<FieldT> &&Bt,
@@ -135,9 +135,9 @@ public:
     qap_instance_evaluation& operator=(const qap_instance_evaluation<FieldT> &other) = default;
     qap_instance_evaluation& operator=(qap_instance_evaluation<FieldT> &&other) = default;
 
-    uint64_t num_variables() const;
-    uint64_t degree() const;
-    uint64_t num_inputs() const;
+    size_t num_variables() const;
+    size_t degree() const;
+    size_t num_inputs() const;
 
     bool is_satisfied(const qap_witness<FieldT> &witness) const;
 };
@@ -148,9 +148,9 @@ public:
 template<typename FieldT>
 class qap_witness {
 private:
-    uint64_t num_variables_;
-    uint64_t degree_;
-    uint64_t num_inputs_;
+    size_t num_variables_;
+    size_t degree_;
+    size_t num_inputs_;
 
 public:
     FieldT d1, d2, d3;
@@ -158,18 +158,18 @@ public:
     std::vector<FieldT> coefficients_for_ABCs;
     std::vector<FieldT> coefficients_for_H;
 
-    qap_witness(const uint64_t num_variables,
-                const uint64_t degree,
-                const uint64_t num_inputs,
+    qap_witness(const size_t num_variables,
+                const size_t degree,
+                const size_t num_inputs,
                 const FieldT &d1,
                 const FieldT &d2,
                 const FieldT &d3,
                 const std::vector<FieldT> &coefficients_for_ABCs,
                 const std::vector<FieldT> &coefficients_for_H);
 
-    qap_witness(const uint64_t num_variables,
-                const uint64_t degree,
-                const uint64_t num_inputs,
+    qap_witness(const size_t num_variables,
+                const size_t degree,
+                const size_t num_inputs,
                 const FieldT &d1,
                 const FieldT &d2,
                 const FieldT &d3,
@@ -181,9 +181,9 @@ public:
     qap_witness& operator=(const qap_witness<FieldT> &other) = default;
     qap_witness& operator=(qap_witness<FieldT> &&other) = default;
 
-    uint64_t num_variables() const;
-    uint64_t degree() const;
-    uint64_t num_inputs() const;
+    size_t num_variables() const;
+    size_t degree() const;
+    size_t num_inputs() const;
 };
 
 } // libsnark

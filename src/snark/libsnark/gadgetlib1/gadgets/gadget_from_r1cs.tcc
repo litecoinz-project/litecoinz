@@ -27,7 +27,7 @@ gadget_from_r1cs<FieldT>::gadget_from_r1cs(protoboard<FieldT> &pb,
 {
     cs_to_vars[0] = 0; /* constant term maps to constant term */
 
-    uint64_t cs_var_idx = 1;
+    size_t cs_var_idx = 1;
     for (auto va : vars)
     {
 #ifdef DEBUG
@@ -41,7 +41,7 @@ gadget_from_r1cs<FieldT>::gadget_from_r1cs(protoboard<FieldT> &pb,
             if (v.index != 0)
             {
                 // handle annotations, except for re-annotating constant term
-                const std::map<uint64_t, std::string>::const_iterator it = cs.variable_annotations.find(cs_var_idx);
+                const std::map<size_t, std::string>::const_iterator it = cs.variable_annotations.find(cs_var_idx);
 
                 std::string annotation = FMT(annotation_prefix, " variable_%zu", cs_var_idx);
                 if (it != cs.variable_annotations.end())
@@ -67,7 +67,7 @@ gadget_from_r1cs<FieldT>::gadget_from_r1cs(protoboard<FieldT> &pb,
 template<typename FieldT>
 void gadget_from_r1cs<FieldT>::generate_r1cs_constraints()
 {
-    for (uint64_t i = 0; i < cs.num_constraints(); ++i)
+    for (size_t i = 0; i < cs.num_constraints(); ++i)
     {
         const r1cs_constraint<FieldT> &constr = cs.constraints[i];
         r1cs_constraint<FieldT> translated_constr;
@@ -107,12 +107,12 @@ void gadget_from_r1cs<FieldT>::generate_r1cs_witness(const r1cs_primary_input<Fi
     assert(cs.num_inputs() == primary_input.size());
     assert(cs.num_variables() == primary_input.size() + auxiliary_input.size());
 
-    for (uint64_t i = 0; i < primary_input.size(); ++i)
+    for (size_t i = 0; i < primary_input.size(); ++i)
     {
         this->pb.val(pb_variable<FieldT>(cs_to_vars[i+1])) = primary_input[i];
     }
 
-    for (uint64_t i = 0; i < auxiliary_input.size(); ++i)
+    for (size_t i = 0; i < auxiliary_input.size(); ++i)
     {
         this->pb.val(pb_variable<FieldT>(cs_to_vars[primary_input.size()+i+1])) = auxiliary_input[i];
     }

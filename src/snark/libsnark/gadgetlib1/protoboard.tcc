@@ -127,7 +127,7 @@ template<typename FieldT>
 void protoboard<FieldT>::dump_variables() const
 {
 #ifdef DEBUG
-    for (uint64_t i = 0; i < constraint_system.num_variables; ++i)
+    for (size_t i = 0; i < constraint_system.num_variables; ++i)
     {
         printf("%-40s --> ", constraint_system.variable_annotations[i].c_str());
         values[i].as_bigint().print_hex();
@@ -136,25 +136,25 @@ void protoboard<FieldT>::dump_variables() const
 }
 
 template<typename FieldT>
-uint64_t protoboard<FieldT>::num_constraints() const
+size_t protoboard<FieldT>::num_constraints() const
 {
     return constraint_system.num_constraints();
 }
 
 template<typename FieldT>
-uint64_t protoboard<FieldT>::num_inputs() const
+size_t protoboard<FieldT>::num_inputs() const
 {
     return constraint_system.num_inputs();
 }
 
 template<typename FieldT>
-uint64_t protoboard<FieldT>::num_variables() const
+size_t protoboard<FieldT>::num_variables() const
 {
     return next_free_var - 1;
 }
 
 template<typename FieldT>
-void protoboard<FieldT>::set_input_sizes(const uint64_t primary_input_size)
+void protoboard<FieldT>::set_input_sizes(const size_t primary_input_size)
 {
     assert(primary_input_size <= num_variables());
     constraint_system.primary_input_size = primary_input_size;

@@ -38,8 +38,8 @@ private:
 
 public:
 
-    const uint64_t digest_size;
-    const uint64_t tree_depth;
+    const size_t digest_size;
+    const size_t tree_depth;
     pb_linear_combination_array<FieldT> address_bits;
     digest_variable<FieldT> leaf;
     digest_variable<FieldT> root;
@@ -47,7 +47,7 @@ public:
     pb_linear_combination<FieldT> read_successful;
 
     merkle_tree_check_read_gadget(protoboard<FieldT> &pb,
-                                  const uint64_t tree_depth,
+                                  const size_t tree_depth,
                                   const pb_linear_combination_array<FieldT> &address_bits,
                                   const digest_variable<FieldT> &leaf_digest,
                                   const digest_variable<FieldT> &root_digest,
@@ -58,9 +58,9 @@ public:
     void generate_r1cs_constraints();
     void generate_r1cs_witness();
 
-    static uint64_t root_size_in_bits();
+    static size_t root_size_in_bits();
     /* for debugging purposes */
-    static uint64_t expected_constraints(const uint64_t tree_depth);
+    static size_t expected_constraints(const size_t tree_depth);
 };
 
 template<typename FieldT, typename HashT>

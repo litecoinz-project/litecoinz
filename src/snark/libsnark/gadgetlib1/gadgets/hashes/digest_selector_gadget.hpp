@@ -17,14 +17,14 @@ namespace libsnark {
 template<typename FieldT>
 class digest_selector_gadget : public gadget<FieldT> {
 public:
-    uint64_t digest_size;
+    size_t digest_size;
     digest_variable<FieldT> input;
     pb_linear_combination<FieldT> is_right;
     digest_variable<FieldT> left;
     digest_variable<FieldT> right;
 
     digest_selector_gadget(protoboard<FieldT> &pb,
-                           const uint64_t digest_size,
+                           const size_t digest_size,
                            const digest_variable<FieldT> &input,
                            const pb_linear_combination<FieldT> &is_right,
                            const digest_variable<FieldT> &left,

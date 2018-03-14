@@ -13,6 +13,8 @@
 #include "uint256.h"
 #include "version.h"
 
+#include "sodium.h"
+
 #include <vector>
 
 typedef uint256 ChainCode;

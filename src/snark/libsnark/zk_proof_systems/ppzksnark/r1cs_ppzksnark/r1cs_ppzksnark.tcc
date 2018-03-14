@@ -208,7 +208,7 @@ std::istream& operator>>(std::istream &in, r1cs_ppzksnark_proof<ppT> &proof)
 }
 
 template<typename ppT>
-r1cs_ppzksnark_verification_key<ppT> r1cs_ppzksnark_verification_key<ppT>::dummy_verification_key(const uint64_t input_size)
+r1cs_ppzksnark_verification_key<ppT> r1cs_ppzksnark_verification_key<ppT>::dummy_verification_key(const size_t input_size)
 {
     r1cs_ppzksnark_verification_key<ppT> result;
     result.alphaA_g2 = Fr<ppT>::random_element() * G2<ppT>::one();
@@ -221,7 +221,7 @@ r1cs_ppzksnark_verification_key<ppT> r1cs_ppzksnark_verification_key<ppT>::dummy
 
     G1<ppT> base = Fr<ppT>::random_element() * G1<ppT>::one();
     G1_vector<ppT> v;
-    for (uint64_t i = 0; i < input_size; ++i)
+    for (size_t i = 0; i < input_size; ++i)
     {
         v.emplace_back(Fr<ppT>::random_element() * G1<ppT>::one());
     }
@@ -275,8 +275,8 @@ r1cs_ppzksnark_keypair<ppT> r1cs_ppzksnark_generator(
     print_indent(); printf("* QAP number of input variables: %zu\n", qap_inst.num_inputs());
 
     enter_block("Compute query densities");
-    uint64_t non_zero_At = 0, non_zero_Bt = 0, non_zero_Ct = 0, non_zero_Ht = 0;
-    for (uint64_t i = 0; i < qap_inst.num_variables()+1; ++i)
+    size_t non_zero_At = 0, non_zero_Bt = 0, non_zero_Ct = 0, non_zero_Ht = 0;
+    for (size_t i = 0; i < qap_inst.num_variables()+1; ++i)
     {
         if (!qap_inst.At[i].is_zero())
         {
@@ -291,7 +291,7 @@ r1cs_ppzksnark_keypair<ppT> r1cs_ppzksnark_generator(
             ++non_zero_Ct;
         }
     }
-    for (uint64_t i = 0; i < qap_inst.degree()+1; ++i)
+    for (size_t i = 0; i < qap_inst.degree()+1; ++i)
     {
         if (!qap_inst.Ht[i].is_zero())
         {
@@ -312,10 +312,10 @@ r1cs_ppzksnark_keypair<ppT> r1cs_ppzksnark_generator(
 
     const Fr<ppT>      rC = rA * rB;
 
-    // consrtuct the same-coefficient-check query (must happen before zeroing out the prefix of At)
+    // construct the same-coefficient-check query (must happen before zeroing out the prefix of At)
     Fr_vector<ppT> Kt;
     Kt.reserve(qap_inst.num_variables()+4);
-    for (uint64_t i = 0; i < qap_inst.num_variables()+1; ++i)
+    for (size_t i = 0; i < qap_inst.num_variables()+1; ++i)
     {
         Kt.emplace_back( beta * (rA * At[i] + rB * Bt[i] + rC * Ct[i] ) );
     }
@@ -326,25 +326,25 @@ r1cs_ppzksnark_keypair<ppT> r1cs_ppzksnark_generator(
     /* zero out prefix of At and stick it into IC coefficients */
     Fr_vector<ppT> IC_coefficients;
     IC_coefficients.reserve(qap_inst.num_inputs() + 1);
-    for (uint64_t i = 0; i < qap_inst.num_inputs() + 1; ++i)
+    for (size_t i = 0; i < qap_inst.num_inputs() + 1; ++i)
     {
         IC_coefficients.emplace_back(At[i]);
         assert(!IC_coefficients[i].is_zero());
         At[i] = Fr<ppT>::zero();
     }
 
-    const uint64_t g1_exp_count = 2*(non_zero_At - qap_inst.num_inputs() + non_zero_Ct) + non_zero_Bt + non_zero_Ht + Kt.size();
-    const uint64_t g2_exp_count = non_zero_Bt;
+    const size_t g1_exp_count = 2*(non_zero_At - qap_inst.num_inputs() + non_zero_Ct) + non_zero_Bt + non_zero_Ht + Kt.size();
+    const size_t g2_exp_count = non_zero_Bt;
 
-    uint64_t g1_window = get_exp_window_size<G1<ppT> >(g1_exp_count);
-    uint64_t g2_window = get_exp_window_size<G2<ppT> >(g2_exp_count);
+    size_t g1_window = get_exp_window_size<G1<ppT> >(g1_exp_count);
+    size_t g2_window = get_exp_window_size<G2<ppT> >(g2_exp_count);
     print_indent(); printf("* G1 window: %zu\n", g1_window);
     print_indent(); printf("* G2 window: %zu\n", g2_window);
 
 #ifdef MULTICORE
-    const uint64_t chunks = omp_get_max_threads(); // to override, set OMP_NUM_THREADS env var or call omp_set_num_threads()
+    const size_t chunks = omp_get_max_threads(); // to override, set OMP_NUM_THREADS env var or call omp_set_num_threads()
 #else
-    const uint64_t chunks = 1;
+    const size_t chunks = 1;
 #endif
 
     enter_block("Generating G1 multiexp table");
@@ -398,7 +398,7 @@ r1cs_ppzksnark_keypair<ppT> r1cs_ppzksnark_generator(
     G1<ppT> encoded_IC_base = (rA * IC_coefficients[0]) * G1<ppT>::one();
     Fr_vector<ppT> multiplied_IC_coefficients;
     multiplied_IC_coefficients.reserve(qap_inst.num_inputs());
-    for (uint64_t i = 1; i < qap_inst.num_inputs() + 1; ++i)
+    for (size_t i = 1; i < qap_inst.num_inputs() + 1; ++i)
     {
         multiplied_IC_coefficients.emplace_back(rA * IC_coefficients[i]);
     }
@@ -443,9 +443,9 @@ knowledge_commitment<T1, T2> r1cs_compute_proof_kc(const qap_witness<Fr<ppT> > &
 #endif
 
 #ifdef MULTICORE
-    const uint64_t chunks = omp_get_max_threads(); // to override, set OMP_NUM_THREADS env var or call omp_set_num_threads()
+    const size_t chunks = omp_get_max_threads(); // to override, set OMP_NUM_THREADS env var or call omp_set_num_threads()
 #else
-    const uint64_t chunks = 1;
+    const size_t chunks = 1;
 #endif
 
     returnval = returnval + kc_multi_exp_with_mixed_addition<T1, T2, Fr<ppT> >(
@@ -471,9 +471,9 @@ G1<ppT> r1cs_compute_proof_K(const qap_witness<Fr<ppT>> &qap_wit, const G1_vecto
 #endif
 
 #ifdef MULTICORE
-    const uint64_t chunks = omp_get_max_threads(); // to override, set OMP_NUM_THREADS env var or call omp_set_num_threads()
+    const size_t chunks = omp_get_max_threads(); // to override, set OMP_NUM_THREADS env var or call omp_set_num_threads()
 #else
-    const uint64_t chunks = 1;
+    const size_t chunks = 1;
 #endif
 
     G1<ppT> g_K = K_query[0] + zk_shift;
@@ -500,9 +500,9 @@ G1<ppT> r1cs_compute_proof_H(const qap_witness<Fr<ppT> > &qap_wit, const G1_vect
 #endif
 
 #ifdef MULTICORE
-    const uint64_t chunks = omp_get_max_threads(); // to override, set OMP_NUM_THREADS env var or call omp_set_num_threads()
+    const size_t chunks = omp_get_max_threads(); // to override, set OMP_NUM_THREADS env var or call omp_set_num_threads()
 #else
-    const uint64_t chunks = 1;
+    const size_t chunks = 1;
 #endif
 
     g_H = g_H + multi_exp<G1<ppT>, Fr<ppT> >(
@@ -544,7 +544,7 @@ r1cs_ppzksnark_proof<ppT> r1cs_ppzksnark_prover(const r1cs_ppzksnark_proving_key
 #endif
 
 #ifdef DEBUG
-    for (uint64_t i = 0; i < qap_wit.num_inputs() + 1; ++i)
+    for (size_t i = 0; i < qap_wit.num_inputs() + 1; ++i)
     {
         assert(pk.A_query[i].g == G1<ppT>::zero());
     }

@@ -23,12 +23,12 @@ namespace libsnark {
 
 template<typename FieldT>
 qap_instance<FieldT>::qap_instance(const std::shared_ptr<evaluation_domain<FieldT> > &domain,
-                                   const uint64_t num_variables,
-                                   const uint64_t degree,
-                                   const uint64_t num_inputs,
-                                   const std::vector<std::map<uint64_t, FieldT> > &A_in_Lagrange_basis,
-                                   const std::vector<std::map<uint64_t, FieldT> > &B_in_Lagrange_basis,
-                                   const std::vector<std::map<uint64_t, FieldT> > &C_in_Lagrange_basis) :
+                                   const size_t num_variables,
+                                   const size_t degree,
+                                   const size_t num_inputs,
+                                   const std::vector<std::map<size_t, FieldT> > &A_in_Lagrange_basis,
+                                   const std::vector<std::map<size_t, FieldT> > &B_in_Lagrange_basis,
+                                   const std::vector<std::map<size_t, FieldT> > &C_in_Lagrange_basis) :
     num_variables_(num_variables),
     degree_(degree),
     num_inputs_(num_inputs),
@@ -41,12 +41,12 @@ qap_instance<FieldT>::qap_instance(const std::shared_ptr<evaluation_domain<Field
 
 template<typename FieldT>
 qap_instance<FieldT>::qap_instance(const std::shared_ptr<evaluation_domain<FieldT> > &domain,
-                                   const uint64_t num_variables,
-                                   const uint64_t degree,
-                                   const uint64_t num_inputs,
-                                   std::vector<std::map<uint64_t, FieldT> > &&A_in_Lagrange_basis,
-                                   std::vector<std::map<uint64_t, FieldT> > &&B_in_Lagrange_basis,
-                                   std::vector<std::map<uint64_t, FieldT> > &&C_in_Lagrange_basis) :
+                                   const size_t num_variables,
+                                   const size_t degree,
+                                   const size_t num_inputs,
+                                   std::vector<std::map<size_t, FieldT> > &&A_in_Lagrange_basis,
+                                   std::vector<std::map<size_t, FieldT> > &&B_in_Lagrange_basis,
+                                   std::vector<std::map<size_t, FieldT> > &&C_in_Lagrange_basis) :
     num_variables_(num_variables),
     degree_(degree),
     num_inputs_(num_inputs),
@@ -58,19 +58,19 @@ qap_instance<FieldT>::qap_instance(const std::shared_ptr<evaluation_domain<Field
 }
 
 template<typename FieldT>
-uint64_t qap_instance<FieldT>::num_variables() const
+size_t qap_instance<FieldT>::num_variables() const
 {
     return num_variables_;
 }
 
 template<typename FieldT>
-uint64_t qap_instance<FieldT>::degree() const
+size_t qap_instance<FieldT>::degree() const
 {
     return degree_;
 }
 
 template<typename FieldT>
-uint64_t qap_instance<FieldT>::num_inputs() const
+size_t qap_instance<FieldT>::num_inputs() const
 {
     return num_inputs_;
 }
@@ -89,7 +89,7 @@ bool qap_instance<FieldT>::is_satisfied(const qap_witness<FieldT> &witness) cons
 
     const std::vector<FieldT> u = this->domain->lagrange_coeffs(t);
 
-    for (uint64_t i = 0; i < this->num_variables()+1; ++i)
+    for (size_t i = 0; i < this->num_variables()+1; ++i)
     {
         for (auto &el : A_in_Lagrange_basis[i])
         {
@@ -108,7 +108,7 @@ bool qap_instance<FieldT>::is_satisfied(const qap_witness<FieldT> &witness) cons
     }
 
     FieldT ti = FieldT::one();
-    for (uint64_t i = 0; i < this->degree()+1; ++i)
+    for (size_t i = 0; i < this->degree()+1; ++i)
     {
         Ht[i] = ti;
         ti *= t;
@@ -129,9 +129,9 @@ bool qap_instance<FieldT>::is_satisfied(const qap_witness<FieldT> &witness) cons
 
 template<typename FieldT>
 qap_instance_evaluation<FieldT>::qap_instance_evaluation(const std::shared_ptr<evaluation_domain<FieldT> > &domain,
-                                                         const uint64_t num_variables,
-                                                         const uint64_t degree,
-                                                         const uint64_t num_inputs,
+                                                         const size_t num_variables,
+                                                         const size_t degree,
+                                                         const size_t num_inputs,
                                                          const FieldT &t,
                                                          const std::vector<FieldT> &At,
                                                          const std::vector<FieldT> &Bt,
@@ -153,9 +153,9 @@ qap_instance_evaluation<FieldT>::qap_instance_evaluation(const std::shared_ptr<e
 
 template<typename FieldT>
 qap_instance_evaluation<FieldT>::qap_instance_evaluation(const std::shared_ptr<evaluation_domain<FieldT> > &domain,
-                                                         const uint64_t num_variables,
-                                                         const uint64_t degree,
-                                                         const uint64_t num_inputs,
+                                                         const size_t num_variables,
+                                                         const size_t degree,
+                                                         const size_t num_inputs,
                                                          const FieldT &t,
                                                          std::vector<FieldT> &&At,
                                                          std::vector<FieldT> &&Bt,
@@ -176,19 +176,19 @@ qap_instance_evaluation<FieldT>::qap_instance_evaluation(const std::shared_ptr<e
 }
 
 template<typename FieldT>
-uint64_t qap_instance_evaluation<FieldT>::num_variables() const
+size_t qap_instance_evaluation<FieldT>::num_variables() const
 {
     return num_variables_;
 }
 
 template<typename FieldT>
-uint64_t qap_instance_evaluation<FieldT>::degree() const
+size_t qap_instance_evaluation<FieldT>::degree() const
 {
     return degree_;
 }
 
 template<typename FieldT>
-uint64_t qap_instance_evaluation<FieldT>::num_inputs() const
+size_t qap_instance_evaluation<FieldT>::num_inputs() const
 {
     return num_inputs_;
 }
@@ -260,9 +260,9 @@ bool qap_instance_evaluation<FieldT>::is_satisfied(const qap_witness<FieldT> &wi
 }
 
 template<typename FieldT>
-qap_witness<FieldT>::qap_witness(const uint64_t num_variables,
-                                 const uint64_t degree,
-                                 const uint64_t num_inputs,
+qap_witness<FieldT>::qap_witness(const size_t num_variables,
+                                 const size_t degree,
+                                 const size_t num_inputs,
                                  const FieldT &d1,
                                  const FieldT &d2,
                                  const FieldT &d3,
@@ -280,9 +280,9 @@ qap_witness<FieldT>::qap_witness(const uint64_t num_variables,
 }
 
 template<typename FieldT>
-qap_witness<FieldT>::qap_witness(const uint64_t num_variables,
-                                 const uint64_t degree,
-                                 const uint64_t num_inputs,
+qap_witness<FieldT>::qap_witness(const size_t num_variables,
+                                 const size_t degree,
+                                 const size_t num_inputs,
                                  const FieldT &d1,
                                  const FieldT &d2,
                                  const FieldT &d3,
@@ -301,19 +301,19 @@ qap_witness<FieldT>::qap_witness(const uint64_t num_variables,
 
 
 template<typename FieldT>
-uint64_t qap_witness<FieldT>::num_variables() const
+size_t qap_witness<FieldT>::num_variables() const
 {
     return num_variables_;
 }
 
 template<typename FieldT>
-uint64_t qap_witness<FieldT>::degree() const
+size_t qap_witness<FieldT>::degree() const
 {
     return degree_;
 }
 
 template<typename FieldT>
-uint64_t qap_witness<FieldT>::num_inputs() const
+size_t qap_witness<FieldT>::num_inputs() const
 {
     return num_inputs_;
 }

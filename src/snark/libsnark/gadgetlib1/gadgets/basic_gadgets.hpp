@@ -51,14 +51,14 @@ public:
     const pb_linear_combination_array<FieldT> bits;
     const pb_linear_combination_array<FieldT> packed_vars;
 
-    const uint64_t chunk_size;
-    const uint64_t num_chunks;
-    // const uint64_t last_chunk_size;
+    const size_t chunk_size;
+    const size_t num_chunks;
+    // const size_t last_chunk_size;
 
     multipacking_gadget(protoboard<FieldT> &pb,
                         const pb_linear_combination_array<FieldT> &bits,
                         const pb_linear_combination_array<FieldT> &packed_vars,
-                        const uint64_t chunk_size,
+                        const size_t chunk_size,
                         const std::string &annotation_prefix="");
     void generate_r1cs_constraints(const bool enforce_bitness);
     void generate_r1cs_witness_from_packed();
@@ -95,14 +95,14 @@ public:
     std::shared_ptr<multipacking_gadget<FieldT> > pack_target;
     std::shared_ptr<field_vector_copy_gadget<FieldT> > copier;
 
-    const uint64_t chunk_size;
-    const uint64_t num_chunks;
+    const size_t chunk_size;
+    const size_t num_chunks;
 
     bit_vector_copy_gadget(protoboard<FieldT> &pb,
                            const pb_variable_array<FieldT> &source_bits,
                            const pb_variable_array<FieldT> &target_bits,
                            const pb_linear_combination<FieldT> &do_copy,
-                           const uint64_t chunk_size,
+                           const size_t chunk_size,
                            const std::string &annotation_prefix="");
     void generate_r1cs_constraints(const bool enforce_source_bitness, const bool enforce_target_bitness);
     void generate_r1cs_witness();
@@ -117,7 +117,7 @@ public:
     pb_variable_array<FieldT> bits;
 
     dual_variable_gadget(protoboard<FieldT> &pb,
-                         const uint64_t width,
+                         const size_t width,
                          const std::string &annotation_prefix="") :
         gadget<FieldT>(pb, annotation_prefix)
     {
@@ -143,7 +143,7 @@ public:
 
     dual_variable_gadget(protoboard<FieldT> &pb,
                          const pb_variable<FieldT> &packed,
-                         const uint64_t width,
+                         const size_t width,
                          const std::string &annotation_prefix="") :
         gadget<FieldT>(pb, annotation_prefix), packed(packed)
     {
@@ -191,7 +191,7 @@ public:
 };
 
 template<typename FieldT>
-void test_disjunction_gadget(const uint64_t n);
+void test_disjunction_gadget(const size_t n);
 
 template<typename FieldT>
 class conjunction_gadget : public gadget<FieldT> {
@@ -216,7 +216,7 @@ public:
 };
 
 template<typename FieldT>
-void test_conjunction_gadget(const uint64_t n);
+void test_conjunction_gadget(const size_t n);
 
 template<typename FieldT>
 class comparison_gadget : public gadget<FieldT> {
@@ -228,14 +228,14 @@ private:
     std::shared_ptr<disjunction_gadget<FieldT> > all_zeros_test;
     pb_variable<FieldT> not_all_zeros;
 public:
-    const uint64_t n;
+    const size_t n;
     const pb_linear_combination<FieldT> A;
     const pb_linear_combination<FieldT> B;
     const pb_variable<FieldT> less;
     const pb_variable<FieldT> less_or_eq;
 
     comparison_gadget(protoboard<FieldT>& pb,
-                      const uint64_t n,
+                      const size_t n,
                       const pb_linear_combination<FieldT> &A,
                       const pb_linear_combination<FieldT> &B,
                       const pb_variable<FieldT> &less,
@@ -263,7 +263,7 @@ public:
 };
 
 template<typename FieldT>
-void test_comparison_gadget(const uint64_t n);
+void test_comparison_gadget(const size_t n);
 
 template<typename FieldT>
 class inner_product_gadget : public gadget<FieldT> {
@@ -293,7 +293,7 @@ public:
 };
 
 template<typename FieldT>
-void test_inner_product_gadget(const uint64_t n);
+void test_inner_product_gadget(const size_t n);
 
 template<typename FieldT>
 class loose_multiplexing_gadget : public gadget<FieldT> {
@@ -330,7 +330,7 @@ public:
 };
 
 template<typename FieldT>
-void test_loose_multiplexing_gadget(const uint64_t n);
+void test_loose_multiplexing_gadget(const size_t n);
 
 template<typename FieldT, typename VarT>
 void create_linear_combination_constraints(protoboard<FieldT> &pb,

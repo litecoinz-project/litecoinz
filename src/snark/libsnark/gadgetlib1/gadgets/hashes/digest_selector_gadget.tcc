@@ -11,7 +11,7 @@ namespace libsnark {
 
 template<typename FieldT>
 digest_selector_gadget<FieldT>::digest_selector_gadget(protoboard<FieldT> &pb,
-                                                       const uint64_t digest_size,
+                                                       const size_t digest_size,
                                                        const digest_variable<FieldT> &input,
                                                        const pb_linear_combination<FieldT> &is_right,
                                                        const digest_variable<FieldT> &left,
@@ -24,7 +24,7 @@ gadget<FieldT>(pb, annotation_prefix), digest_size(digest_size), input(input), i
 template<typename FieldT>
 void digest_selector_gadget<FieldT>::generate_r1cs_constraints()
 {
-    for (uint64_t i = 0; i < digest_size; ++i)
+    for (size_t i = 0; i < digest_size; ++i)
     {
         /*
           input = is_right * right + (1-is_right) * left
@@ -43,14 +43,14 @@ void digest_selector_gadget<FieldT>::generate_r1cs_witness()
     assert(this->pb.lc_val(is_right) == FieldT::one() || this->pb.lc_val(is_right) == FieldT::zero());
     if (this->pb.lc_val(is_right) == FieldT::one())
     {
-        for (uint64_t i = 0; i < digest_size; ++i)
+        for (size_t i = 0; i < digest_size; ++i)
         {
             this->pb.val(right.bits[i]) = this->pb.val(input.bits[i]);
         }
     }
     else
     {
-        for (uint64_t i = 0; i < digest_size; ++i)
+        for (size_t i = 0; i < digest_size; ++i)
         {
             this->pb.val(left.bits[i]) = this->pb.val(input.bits[i]);
         }

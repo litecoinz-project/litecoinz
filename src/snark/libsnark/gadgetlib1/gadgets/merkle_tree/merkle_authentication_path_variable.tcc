@@ -12,12 +12,12 @@ namespace libsnark {
 
 template<typename FieldT, typename HashT>
 merkle_authentication_path_variable<FieldT, HashT>::merkle_authentication_path_variable(protoboard<FieldT> &pb,
-                                                                                        const uint64_t tree_depth,
+                                                                                        const size_t tree_depth,
                                                                                         const std::string &annotation_prefix) :
     gadget<FieldT>(pb, annotation_prefix),
     tree_depth(tree_depth)
 {
-    for (uint64_t i = 0; i < tree_depth; ++i)
+    for (size_t i = 0; i < tree_depth; ++i)
     {
         left_digests.emplace_back(digest_variable<FieldT>(pb, HashT::get_digest_len(), FMT(annotation_prefix, " left_digests_%zu", i)));
         right_digests.emplace_back(digest_variable<FieldT>(pb, HashT::get_digest_len(), FMT(annotation_prefix, " right_digests_%zu", i)));
@@ -27,7 +27,7 @@ merkle_authentication_path_variable<FieldT, HashT>::merkle_authentication_path_v
 template<typename FieldT, typename HashT>
 void merkle_authentication_path_variable<FieldT, HashT>::generate_r1cs_constraints()
 {
-    for (uint64_t i = 0; i < tree_depth; ++i)
+    for (size_t i = 0; i < tree_depth; ++i)
     {
         left_digests[i].generate_r1cs_constraints();
         right_digests[i].generate_r1cs_constraints();
@@ -35,13 +35,13 @@ void merkle_authentication_path_variable<FieldT, HashT>::generate_r1cs_constrain
 }
 
 template<typename FieldT, typename HashT>
-void merkle_authentication_path_variable<FieldT, HashT>::generate_r1cs_witness(const uint64_t address, const merkle_authentication_path &path)
+void merkle_authentication_path_variable<FieldT, HashT>::generate_r1cs_witness(const size_t address, const merkle_authentication_path &path)
 {
     assert(path.size() == tree_depth);
 
-    for (uint64_t i = 0; i < tree_depth; ++i)
+    for (size_t i = 0; i < tree_depth; ++i)
     {
-        if (address & (UINT64_C(1) << (tree_depth-1-i)))
+        if (address & (1ul << (tree_depth-1-i)))
         {
             left_digests[i].generate_r1cs_witness(path[i]);
         }
@@ -53,12 +53,12 @@ void merkle_authentication_path_variable<FieldT, HashT>::generate_r1cs_witness(c
 }
 
 template<typename FieldT, typename HashT>
-merkle_authentication_path merkle_authentication_path_variable<FieldT, HashT>::get_authentication_path(const uint64_t address) const
+merkle_authentication_path merkle_authentication_path_variable<FieldT, HashT>::get_authentication_path(const size_t address) const
 {
     merkle_authentication_path result;
-    for (uint64_t i = 0; i < tree_depth; ++i)
+    for (size_t i = 0; i < tree_depth; ++i)
     {
-        if (address & (UINT64_C(1) << (tree_depth-1-i)))
+        if (address & (1ul << (tree_depth-1-i)))
         {
             result.emplace_back(left_digests[i].get_digest());
         }
