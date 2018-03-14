@@ -41,6 +41,11 @@ if [[ -z "${CXX-}" ]]; then
     CXX=g++
 fi
 
+# Allow users to set arbitary compile flags. Most users will not need this.
+if [[ -z "${CONFIGURE_FLAGS-}" ]]; then
+    CONFIGURE_FLAGS=""
+fi
+
 if [ "x$*" = 'x--help' ]
 then
     cat <<EOF
@@ -111,13 +116,6 @@ then
     shift
 fi
 
-BUILD_OPT=''
-if [ "$BUILD" = "x86_64-pc-mingw64" ]
-then
-    BUILD_OPT='--enable-shared=no --enable-static=yes'
-    TEST_ARG='--enable-tests=no'
-fi
-
 PREFIX="$(pwd)/depends/$BUILD/"
 
 eval "$MAKE" --version
@@ -126,7 +124,7 @@ eval "$CXX" --version
 as --version
 ld -v
 
-HOST="$HOST" NO_PROTON="$PROTON_ARG" "$MAKE" "$@" -C ./depends/
+HOST="$HOST" BUILD="$BUILD" NO_PROTON="$PROTON_ARG" "$MAKE" "$@" -C ./depends/ V=1
 ./autogen.sh
-HOST="$HOST" CC="$CC" CXX="$CXX" CONFIG_SITE="$PWD/depends/$BUILD/share/config.site" ./configure --prefix="${PREFIX}" "$BUILD_OPT" "$HARDENING_ARG" "$LCOV_ARG" "$TEST_ARG" "$MINING_ARG" "$PROTON_ARG" "$LIBS_ARG" CXXFLAGS='-g'
-HOST="$HOST" "$MAKE" "$@"
+CC="$CC" CXX="$CXX" ./configure --prefix="${PREFIX}" "$HARDENING_ARG" "$LCOV_ARG" "$TEST_ARG" "$MINING_ARG" "$PROTON_ARG" "$LIBS_ARG" $CONFIGURE_FLAGS CXXFLAGS='-g'
+"$MAKE" "$@" V=1

@@ -76,7 +76,7 @@ public:
                                   const digest_variable<FieldT> &output,
                                   const std::string &annotation_prefix);
     sha256_two_to_one_hash_gadget(protoboard<FieldT> &pb,
-                                  const uint64_t block_length,
+                                  const size_t block_length,
                                   const block_variable<FieldT> &input_block,
                                   const digest_variable<FieldT> &output,
                                   const std::string &annotation_prefix);
@@ -84,11 +84,11 @@ public:
     void generate_r1cs_constraints(const bool ensure_output_bitness=true); // TODO: ignored for now
     void generate_r1cs_witness();
 
-    static uint64_t get_block_len();
-    static uint64_t get_digest_len();
+    static size_t get_block_len();
+    static size_t get_digest_len();
     static bit_vector get_hash(const bit_vector &input);
 
-    static uint64_t expected_constraints(const bool ensure_output_bitness=true); // TODO: ignored for now
+    static size_t expected_constraints(const bool ensure_output_bitness=true); // TODO: ignored for now
 };
 
 } // libsnark

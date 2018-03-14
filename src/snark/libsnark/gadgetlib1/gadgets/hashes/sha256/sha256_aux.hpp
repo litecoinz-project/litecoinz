@@ -20,7 +20,7 @@ template<typename FieldT>
 class lastbits_gadget : public gadget<FieldT> {
 public:
     pb_variable<FieldT> X;
-    uint64_t X_bits;
+    size_t X_bits;
     pb_variable<FieldT> result;
     pb_linear_combination_array<FieldT> result_bits;
 
@@ -30,7 +30,7 @@ public:
 
     lastbits_gadget(protoboard<FieldT> &pb,
                     const pb_variable<FieldT> &X,
-                    const uint64_t X_bits,
+                    const size_t X_bits,
                     const pb_variable<FieldT> &result,
                     const pb_linear_combination_array<FieldT> &result_bits,
                     const std::string &annotation_prefix);
@@ -76,9 +76,9 @@ public:
     small_sigma_gadget(protoboard<FieldT> &pb,
                        const pb_variable_array<FieldT> &W,
                        const pb_variable<FieldT> &result,
-                       const uint64_t rot1,
-                       const uint64_t rot2,
-                       const uint64_t shift,
+                       const size_t rot1,
+                       const size_t rot2,
+                       const size_t shift,
                        const std::string &annotation_prefix);
 
     void generate_r1cs_constraints();
@@ -99,9 +99,9 @@ public:
     big_sigma_gadget(protoboard<FieldT> &pb,
                      const pb_linear_combination_array<FieldT> &W,
                      const pb_variable<FieldT> &result,
-                     const uint64_t rot1,
-                     const uint64_t rot2,
-                     const uint64_t rot3,
+                     const size_t rot1,
+                     const size_t rot2,
+                     const size_t rot3,
                      const std::string &annotation_prefix);
 
     void generate_r1cs_constraints();

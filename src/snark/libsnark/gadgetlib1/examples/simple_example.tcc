@@ -16,10 +16,10 @@ namespace libsnark {
 /* NOTE: all examples here actually generate one constraint less to account for soundness constraint in QAP */
 
 template<typename FieldT>
-r1cs_example<FieldT> gen_r1cs_example_from_protoboard(const uint64_t num_constraints,
-                                                      const uint64_t num_inputs)
+r1cs_example<FieldT> gen_r1cs_example_from_protoboard(const size_t num_constraints,
+                                                      const size_t num_inputs)
 {
-    const uint64_t new_num_constraints = num_constraints - 1;
+    const size_t new_num_constraints = num_constraints - 1;
 
     /* construct dummy example: inner products of two vectors */
     protoboard<FieldT> pb;
@@ -36,7 +36,7 @@ r1cs_example<FieldT> gen_r1cs_example_from_protoboard(const uint64_t num_constra
     compute_inner_product.generate_r1cs_constraints();
 
     /* fill in random example */
-    for (uint64_t i = 0; i < new_num_constraints; ++i)
+    for (size_t i = 0; i < new_num_constraints; ++i)
     {
         pb.val(A[i]) = FieldT::random_element();
         pb.val(B[i]) = FieldT::random_element();

@@ -19,7 +19,7 @@ namespace libsnark {
 template<typename FieldT>
 lastbits_gadget<FieldT>::lastbits_gadget(protoboard<FieldT> &pb,
                                          const pb_variable<FieldT> &X,
-                                         const uint64_t X_bits,
+                                         const size_t X_bits,
                                          const pb_variable<FieldT> &result,
                                          const pb_linear_combination_array<FieldT> &result_bits,
                                          const std::string &annotation_prefix) :
@@ -30,7 +30,7 @@ lastbits_gadget<FieldT>::lastbits_gadget(protoboard<FieldT> &pb,
     result_bits(result_bits)
 {
     full_bits = result_bits;
-    for (uint64_t i = result_bits.size(); i < X_bits; ++i)
+    for (size_t i = result_bits.size(); i < X_bits; ++i)
     {
         pb_variable<FieldT> full_bits_overflow;
         full_bits_overflow.allocate(pb, FMT(this->annotation_prefix, " full_bits_%zu", i));
@@ -115,9 +115,9 @@ template<typename FieldT>
 small_sigma_gadget<FieldT>::small_sigma_gadget(protoboard<FieldT> &pb,
                                                const pb_variable_array<FieldT> &W,
                                                const pb_variable<FieldT> &result,
-                                               const uint64_t rot1,
-                                               const uint64_t rot2,
-                                               const uint64_t shift,
+                                               const size_t rot1,
+                                               const size_t rot2,
+                                               const size_t shift,
                                                const std::string &annotation_prefix) :
     gadget<FieldT>(pb, annotation_prefix),
     W(W),
@@ -125,7 +125,7 @@ small_sigma_gadget<FieldT>::small_sigma_gadget(protoboard<FieldT> &pb,
 {
     result_bits.allocate(pb, 32, FMT(this->annotation_prefix, " result_bits"));
     compute_bits.resize(32);
-    for (uint64_t i = 0; i < 32; ++i)
+    for (size_t i = 0; i < 32; ++i)
     {
         compute_bits[i].reset(new XOR3_gadget<FieldT>(pb, SHA256_GADGET_ROTR(W, i, rot1), SHA256_GADGET_ROTR(W, i, rot2),
                                               (i + shift < 32 ? W[i+shift] : ONE),
@@ -138,7 +138,7 @@ small_sigma_gadget<FieldT>::small_sigma_gadget(protoboard<FieldT> &pb,
 template<typename FieldT>
 void small_sigma_gadget<FieldT>::generate_r1cs_constraints()
 {
-    for (uint64_t i = 0; i < 32; ++i)
+    for (size_t i = 0; i < 32; ++i)
     {
         compute_bits[i]->generate_r1cs_constraints();
     }
@@ -149,7 +149,7 @@ void small_sigma_gadget<FieldT>::generate_r1cs_constraints()
 template<typename FieldT>
 void small_sigma_gadget<FieldT>::generate_r1cs_witness()
 {
-    for (uint64_t i = 0; i < 32; ++i)
+    for (size_t i = 0; i < 32; ++i)
     {
         compute_bits[i]->generate_r1cs_witness();
     }
@@ -161,9 +161,9 @@ template<typename FieldT>
 big_sigma_gadget<FieldT>::big_sigma_gadget(protoboard<FieldT> &pb,
                                            const pb_linear_combination_array<FieldT> &W,
                                            const pb_variable<FieldT> &result,
-                                           const uint64_t rot1,
-                                           const uint64_t rot2,
-                                           const uint64_t rot3,
+                                           const size_t rot1,
+                                           const size_t rot2,
+                                           const size_t rot3,
                                            const std::string &annotation_prefix) :
     gadget<FieldT>(pb, annotation_prefix),
     W(W),
@@ -171,7 +171,7 @@ big_sigma_gadget<FieldT>::big_sigma_gadget(protoboard<FieldT> &pb,
 {
     result_bits.allocate(pb, 32, FMT(this->annotation_prefix, " result_bits"));
     compute_bits.resize(32);
-    for (uint64_t i = 0; i < 32; ++i)
+    for (size_t i = 0; i < 32; ++i)
     {
         compute_bits[i].reset(new XOR3_gadget<FieldT>(pb, SHA256_GADGET_ROTR(W, i, rot1), SHA256_GADGET_ROTR(W, i, rot2), SHA256_GADGET_ROTR(W, i, rot3), false, result_bits[i],
                                                       FMT(this->annotation_prefix, " compute_bits_%zu", i)));
@@ -183,7 +183,7 @@ big_sigma_gadget<FieldT>::big_sigma_gadget(protoboard<FieldT> &pb,
 template<typename FieldT>
 void big_sigma_gadget<FieldT>::generate_r1cs_constraints()
 {
-    for (uint64_t i = 0; i < 32; ++i)
+    for (size_t i = 0; i < 32; ++i)
     {
         compute_bits[i]->generate_r1cs_constraints();
     }
@@ -194,7 +194,7 @@ void big_sigma_gadget<FieldT>::generate_r1cs_constraints()
 template<typename FieldT>
 void big_sigma_gadget<FieldT>::generate_r1cs_witness()
 {
-    for (uint64_t i = 0; i < 32; ++i)
+    for (size_t i = 0; i < 32; ++i)
     {
         compute_bits[i]->generate_r1cs_witness();
     }
@@ -222,7 +222,7 @@ choice_gadget<FieldT>::choice_gadget(protoboard<FieldT> &pb,
 template<typename FieldT>
 void choice_gadget<FieldT>::generate_r1cs_constraints()
 {
-    for (uint64_t i = 0; i < 32; ++i)
+    for (size_t i = 0; i < 32; ++i)
     {
         /*
           result = x * y + (1-x) * z
@@ -236,7 +236,7 @@ void choice_gadget<FieldT>::generate_r1cs_constraints()
 template<typename FieldT>
 void choice_gadget<FieldT>::generate_r1cs_witness()
 {
-    for (uint64_t i = 0; i < 32; ++i)
+    for (size_t i = 0; i < 32; ++i)
     {
         this->pb.val(result_bits[i]) = this->pb.lc_val(X[i]) * this->pb.lc_val(Y[i]) + (FieldT::one() - this->pb.lc_val(X[i])) * this->pb.lc_val(Z[i]);
     }
@@ -264,7 +264,7 @@ majority_gadget<FieldT>::majority_gadget(protoboard<FieldT> &pb,
 template<typename FieldT>
 void majority_gadget<FieldT>::generate_r1cs_constraints()
 {
-    for (uint64_t i = 0; i < 32; ++i)
+    for (size_t i = 0; i < 32; ++i)
     {
         /*
           2*result + aux = x + y + z
@@ -283,9 +283,9 @@ void majority_gadget<FieldT>::generate_r1cs_constraints()
 template<typename FieldT>
 void majority_gadget<FieldT>::generate_r1cs_witness()
 {
-    for (uint64_t i = 0; i < 32; ++i)
+    for (size_t i = 0; i < 32; ++i)
     {
-        const int64_t v = (this->pb.lc_val(X[i]) + this->pb.lc_val(Y[i]) + this->pb.lc_val(Z[i])).as_ulong();
+        const long v = (this->pb.lc_val(X[i]) + this->pb.lc_val(Y[i]) + this->pb.lc_val(Z[i])).as_ulong();
         this->pb.val(result_bits[i]) = FieldT(v / 2);
     }
 

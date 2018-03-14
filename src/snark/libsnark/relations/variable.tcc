@@ -342,10 +342,10 @@ bool linear_combination<FieldT>::operator==(const linear_combination<FieldT> &ot
 }
 
 template<typename FieldT>
-bool linear_combination<FieldT>::is_valid(const uint64_t num_variables) const
+bool linear_combination<FieldT>::is_valid(const size_t num_variables) const
 {
     /* check that all terms in linear combination are sorted */
-    for (uint64_t i = 1; i < terms.size(); ++i)
+    for (size_t i = 1; i < terms.size(); ++i)
     {
         if (terms[i-1].index >= terms[i].index)
         {
@@ -364,7 +364,7 @@ bool linear_combination<FieldT>::is_valid(const uint64_t num_variables) const
 }
 
 template<typename FieldT>
-void linear_combination<FieldT>::print(const std::map<uint64_t, std::string> &variable_annotations) const
+void linear_combination<FieldT>::print(const std::map<size_t, std::string> &variable_annotations) const
 {
     for (auto &lt : terms)
     {
@@ -383,7 +383,7 @@ void linear_combination<FieldT>::print(const std::map<uint64_t, std::string> &va
 }
 
 template<typename FieldT>
-void linear_combination<FieldT>::print_with_assignment(const std::vector<FieldT> &full_assignment, const std::map<uint64_t, std::string> &variable_annotations) const
+void linear_combination<FieldT>::print_with_assignment(const std::vector<FieldT> &full_assignment, const std::map<size_t, std::string> &variable_annotations) const
 {
     for (auto &lt : terms)
     {
@@ -425,14 +425,14 @@ std::istream& operator>>(std::istream &in, linear_combination<FieldT> &lc)
 {
     lc.terms.clear();
 
-    uint64_t s;
+    size_t s;
     in >> s;
 
     consume_newline(in);
 
     lc.terms.reserve(s);
 
-    for (uint64_t i = 0; i < s; ++i)
+    for (size_t i = 0; i < s; ++i)
     {
         linear_term<FieldT> lt;
         in >> lt.index;

@@ -36,7 +36,7 @@ void packing_gadget<FieldT>::generate_r1cs_constraints(const bool enforce_bitnes
 
     if (enforce_bitness)
     {
-        for (uint64_t i = 0; i < bits.size(); ++i)
+        for (size_t i = 0; i < bits.size(); ++i)
         {
             generate_boolean_r1cs_constraint<FieldT>(this->pb, bits[i], FMT(this->annotation_prefix, " bitness_%zu", i));
         }
@@ -62,7 +62,7 @@ template<typename FieldT>
 multipacking_gadget<FieldT>::multipacking_gadget(protoboard<FieldT> &pb,
                                                  const pb_linear_combination_array<FieldT> &bits,
                                                  const pb_linear_combination_array<FieldT> &packed_vars,
-                                                 const uint64_t chunk_size,
+                                                 const size_t chunk_size,
                                                  const std::string &annotation_prefix) :
     gadget<FieldT>(pb, annotation_prefix), bits(bits), packed_vars(packed_vars),
     chunk_size(chunk_size),
@@ -70,7 +70,7 @@ multipacking_gadget<FieldT>::multipacking_gadget(protoboard<FieldT> &pb,
     // last_chunk_size(bits.size() - (num_chunks-1) * chunk_size)
 {
     assert(packed_vars.size() == num_chunks);
-    for (uint64_t i = 0; i < num_chunks; ++i)
+    for (size_t i = 0; i < num_chunks; ++i)
     {
         packers.emplace_back(packing_gadget<FieldT>(this->pb, pb_linear_combination_array<FieldT>(bits.begin() + i * chunk_size,
                                                                                                   bits.begin() + std::min((i+1) * chunk_size, bits.size())),
@@ -81,7 +81,7 @@ multipacking_gadget<FieldT>::multipacking_gadget(protoboard<FieldT> &pb,
 template<typename FieldT>
 void multipacking_gadget<FieldT>::generate_r1cs_constraints(const bool enforce_bitness)
 {
-    for (uint64_t i = 0; i < num_chunks; ++i)
+    for (size_t i = 0; i < num_chunks; ++i)
     {
         packers[i].generate_r1cs_constraints(enforce_bitness);
     }
@@ -90,7 +90,7 @@ void multipacking_gadget<FieldT>::generate_r1cs_constraints(const bool enforce_b
 template<typename FieldT>
 void multipacking_gadget<FieldT>::generate_r1cs_witness_from_packed()
 {
-    for (uint64_t i = 0; i < num_chunks; ++i)
+    for (size_t i = 0; i < num_chunks; ++i)
     {
         packers[i].generate_r1cs_witness_from_packed();
     }
@@ -99,14 +99,14 @@ void multipacking_gadget<FieldT>::generate_r1cs_witness_from_packed()
 template<typename FieldT>
 void multipacking_gadget<FieldT>::generate_r1cs_witness_from_bits()
 {
-    for (uint64_t i = 0; i < num_chunks; ++i)
+    for (size_t i = 0; i < num_chunks; ++i)
     {
         packers[i].generate_r1cs_witness_from_bits();
     }
 }
 
 template<typename FieldT>
-uint64_t multipacking_num_chunks(const uint64_t num_bits)
+size_t multipacking_num_chunks(const size_t num_bits)
 {
     return div_ceil(num_bits, FieldT::capacity());
 }
@@ -125,7 +125,7 @@ gadget<FieldT>(pb, annotation_prefix), source(source), target(target), do_copy(d
 template<typename FieldT>
 void field_vector_copy_gadget<FieldT>::generate_r1cs_constraints()
 {
-    for (uint64_t i = 0; i < source.size(); ++i)
+    for (size_t i = 0; i < source.size(); ++i)
     {
         this->pb.add_r1cs_constraint(r1cs_constraint<FieldT>(do_copy, source[i] - target[i], 0),
                                      FMT(this->annotation_prefix, " copying_check_%zu", i));
@@ -139,7 +139,7 @@ void field_vector_copy_gadget<FieldT>::generate_r1cs_witness()
     assert(this->pb.lc_val(do_copy) == FieldT::one() || this->pb.lc_val(do_copy) == FieldT::zero());
     if (this->pb.lc_val(do_copy) != FieldT::zero())
     {
-        for (uint64_t i = 0; i < source.size(); ++i)
+        for (size_t i = 0; i < source.size(); ++i)
         {
             this->pb.val(target[i]) = this->pb.val(source[i]);
         }
@@ -151,7 +151,7 @@ bit_vector_copy_gadget<FieldT>::bit_vector_copy_gadget(protoboard<FieldT> &pb,
                                                        const pb_variable_array<FieldT> &source_bits,
                                                        const pb_variable_array<FieldT> &target_bits,
                                                        const pb_linear_combination<FieldT> &do_copy,
-                                                       const uint64_t chunk_size,
+                                                       const size_t chunk_size,
                                                        const std::string &annotation_prefix) :
     gadget<FieldT>(pb, annotation_prefix), source_bits(source_bits), target_bits(target_bits), do_copy(do_copy),
     chunk_size(chunk_size), num_chunks(div_ceil(source_bits.size(), chunk_size))
@@ -183,7 +183,7 @@ void bit_vector_copy_gadget<FieldT>::generate_r1cs_witness()
     assert(this->pb.lc_val(do_copy) == FieldT::zero() || this->pb.lc_val(do_copy) == FieldT::one());
     if (this->pb.lc_val(do_copy) == FieldT::one())
     {
-        for (uint64_t i = 0; i < source_bits.size(); ++i)
+        for (size_t i = 0; i < source_bits.size(); ++i)
         {
             this->pb.val(target_bits[i]) = this->pb.val(source_bits[i]);
         }
@@ -217,7 +217,7 @@ void disjunction_gadget<FieldT>::generate_r1cs_constraints()
     /* inv * sum = output */
     linear_combination<FieldT> a1, b1, c1;
     a1.add_term(inv);
-    for (uint64_t i = 0; i < inputs.size(); ++i)
+    for (size_t i = 0; i < inputs.size(); ++i)
     {
         b1.add_term(inputs[i]);
     }
@@ -229,7 +229,7 @@ void disjunction_gadget<FieldT>::generate_r1cs_constraints()
     linear_combination<FieldT> a2, b2, c2;
     a2.add_term(ONE);
     a2.add_term(output, -1);
-    for (uint64_t i = 0; i < inputs.size(); ++i)
+    for (size_t i = 0; i < inputs.size(); ++i)
     {
         b2.add_term(inputs[i]);
     }
@@ -243,7 +243,7 @@ void disjunction_gadget<FieldT>::generate_r1cs_witness()
 {
     FieldT sum = FieldT::zero();
 
-    for (uint64_t i = 0; i < inputs.size(); ++i)
+    for (size_t i = 0; i < inputs.size(); ++i)
     {
         sum += this->pb.val(inputs[i]);
     }
@@ -261,7 +261,7 @@ void disjunction_gadget<FieldT>::generate_r1cs_witness()
 }
 
 template<typename FieldT>
-void test_disjunction_gadget(const uint64_t n)
+void test_disjunction_gadget(const size_t n)
 {
     printf("testing disjunction_gadget on all %zu bit strings\n", n);
 
@@ -275,11 +275,11 @@ void test_disjunction_gadget(const uint64_t n)
     disjunction_gadget<FieldT> d(pb, inputs, output, "d");
     d.generate_r1cs_constraints();
 
-    for (uint64_t w = 0; w < UINT64_C(1)<<n; ++w)
+    for (size_t w = 0; w < 1ul<<n; ++w)
     {
-        for (uint64_t j = 0; j < n; ++j)
+        for (size_t j = 0; j < n; ++j)
         {
-            pb.val(inputs[j]) = FieldT((w & (UINT64_C(1)<<j)) ? 1 : 0);
+            pb.val(inputs[j]) = FieldT((w & (1ul<<j)) ? 1 : 0);
         }
 
         d.generate_r1cs_witness();
@@ -307,7 +307,7 @@ void conjunction_gadget<FieldT>::generate_r1cs_constraints()
     linear_combination<FieldT> a1, b1, c1;
     a1.add_term(inv);
     b1.add_term(ONE, inputs.size());
-    for (uint64_t i = 0; i < inputs.size(); ++i)
+    for (size_t i = 0; i < inputs.size(); ++i)
     {
         b1.add_term(inputs[i], -1);
     }
@@ -320,7 +320,7 @@ void conjunction_gadget<FieldT>::generate_r1cs_constraints()
     linear_combination<FieldT> a2, b2, c2;
     a2.add_term(output);
     b2.add_term(ONE, inputs.size());
-    for (uint64_t i = 0; i < inputs.size(); ++i)
+    for (size_t i = 0; i < inputs.size(); ++i)
     {
         b2.add_term(inputs[i], -1);
     }
@@ -334,7 +334,7 @@ void conjunction_gadget<FieldT>::generate_r1cs_witness()
 {
     FieldT sum = FieldT(inputs.size());
 
-    for (uint64_t i = 0; i < inputs.size(); ++i)
+    for (size_t i = 0; i < inputs.size(); ++i)
     {
         sum -= this->pb.val(inputs[i]);
     }
@@ -352,7 +352,7 @@ void conjunction_gadget<FieldT>::generate_r1cs_witness()
 }
 
 template<typename FieldT>
-void test_conjunction_gadget(const uint64_t n)
+void test_conjunction_gadget(const size_t n)
 {
     printf("testing conjunction_gadget on all %zu bit strings\n", n);
 
@@ -366,11 +366,11 @@ void test_conjunction_gadget(const uint64_t n)
     conjunction_gadget<FieldT> c(pb, inputs, output, "c");
     c.generate_r1cs_constraints();
 
-    for (uint64_t w = 0; w < UINT64_C(1)<<n; ++w)
+    for (size_t w = 0; w < 1ul<<n; ++w)
     {
-        for (uint64_t j = 0; j < n; ++j)
+        for (size_t j = 0; j < n; ++j)
         {
-            pb.val(inputs[j]) = (w & (UINT64_C(1)<<j)) ? FieldT::one() : FieldT::zero();
+            pb.val(inputs[j]) = (w & (1ul<<j)) ? FieldT::one() : FieldT::zero();
         }
 
         c.generate_r1cs_witness();
@@ -378,13 +378,13 @@ void test_conjunction_gadget(const uint64_t n)
 #ifdef DEBUG
         printf("positive test for %zu\n", w);
 #endif
-        assert(pb.val(output) == (w == (UINT64_C(1)<<n) - 1 ? FieldT::one() : FieldT::zero()));
+        assert(pb.val(output) == (w == (1ul<<n) - 1 ? FieldT::one() : FieldT::zero()));
         assert(pb.is_satisfied());
 
 #ifdef DEBUG
         printf("negative test for %zu\n", w);
 #endif
-        pb.val(output) = (w == (UINT64_C(1)<<n) - 1 ? FieldT::zero() : FieldT::one());
+        pb.val(output) = (w == (1ul<<n) - 1 ? FieldT::zero() : FieldT::one());
         assert(!pb.is_satisfied());
     }
 
@@ -439,7 +439,7 @@ void comparison_gadget<FieldT>::generate_r1cs_witness()
 }
 
 template<typename FieldT>
-void test_comparison_gadget(const uint64_t n)
+void test_comparison_gadget(const size_t n)
 {
     printf("testing comparison_gadget on all %zu bit inputs\n", n);
 
@@ -454,9 +454,9 @@ void test_comparison_gadget(const uint64_t n)
     comparison_gadget<FieldT> cmp(pb, n, A, B, less, less_or_eq, "cmp");
     cmp.generate_r1cs_constraints();
 
-    for (uint64_t a = 0; a < UINT64_C(1)<<n; ++a)
+    for (size_t a = 0; a < 1ul<<n; ++a)
     {
-        for (uint64_t b = 0; b < UINT64_C(1)<<n; ++b)
+        for (size_t b = 0; b < 1ul<<n; ++b)
         {
             pb.val(A) = FieldT(a);
             pb.val(B) = FieldT(b);
@@ -483,7 +483,7 @@ void inner_product_gadget<FieldT>::generate_r1cs_constraints()
       S[0] = A[0] * B[0]
       S[i+1] - S[i] = A[i] * B[i]
     */
-    for (uint64_t i = 0; i < A.size(); ++i)
+    for (size_t i = 0; i < A.size(); ++i)
     {
         this->pb.add_r1cs_constraint(
             r1cs_constraint<FieldT>(A[i], B[i],
@@ -496,7 +496,7 @@ template<typename FieldT>
 void inner_product_gadget<FieldT>::generate_r1cs_witness()
 {
     FieldT total = FieldT::zero();
-    for (uint64_t i = 0; i < A.size(); ++i)
+    for (size_t i = 0; i < A.size(); ++i)
     {
         A[i].evaluate(this->pb);
         B[i].evaluate(this->pb);
@@ -507,7 +507,7 @@ void inner_product_gadget<FieldT>::generate_r1cs_witness()
 }
 
 template<typename FieldT>
-void test_inner_product_gadget(const uint64_t n)
+void test_inner_product_gadget(const size_t n)
 {
     printf("testing inner_product_gadget on all %zu bit strings\n", n);
 
@@ -523,16 +523,16 @@ void test_inner_product_gadget(const uint64_t n)
     inner_product_gadget<FieldT> g(pb, A, B, result, "g");
     g.generate_r1cs_constraints();
 
-    for (uint64_t i = 0; i < UINT64_C(1)<<n; ++i)
+    for (size_t i = 0; i < 1ul<<n; ++i)
     {
-        for (uint64_t j = 0; j < UINT64_C(1)<<n; ++j)
+        for (size_t j = 0; j < 1ul<<n; ++j)
         {
-            uint64_t correct = 0;
-            for (uint64_t k = 0; k < n; ++k)
+            size_t correct = 0;
+            for (size_t k = 0; k < n; ++k)
             {
-                pb.val(A[k]) = (i & (UINT64_C(1)<<k) ? FieldT::one() : FieldT::zero());
-                pb.val(B[k]) = (j & (UINT64_C(1)<<k) ? FieldT::one() : FieldT::zero());
-                correct += ((i & (UINT64_C(1)<<k)) && (j & (UINT64_C(1)<<k)) ? 1 : 0);
+                pb.val(A[k]) = (i & (1ul<<k) ? FieldT::one() : FieldT::zero());
+                pb.val(B[k]) = (j & (1ul<<k) ? FieldT::one() : FieldT::zero());
+                correct += ((i & (1ul<<k)) && (j & (1ul<<k)) ? 1 : 0);
             }
 
             g.generate_r1cs_witness();
@@ -557,7 +557,7 @@ template<typename FieldT>
 void loose_multiplexing_gadget<FieldT>::generate_r1cs_constraints()
 {
     /* \alpha_i (index - i) = 0 */
-    for (uint64_t i = 0; i < arr.size(); ++i)
+    for (size_t i = 0; i < arr.size(); ++i)
     {
         this->pb.add_r1cs_constraint(
             r1cs_constraint<FieldT>(alpha[i], index - i, 0),
@@ -567,7 +567,7 @@ void loose_multiplexing_gadget<FieldT>::generate_r1cs_constraints()
     /* 1 * (\sum \alpha_i) = success_flag */
     linear_combination<FieldT> a, b, c;
     a.add_term(ONE);
-    for (uint64_t i = 0; i < arr.size(); ++i)
+    for (size_t i = 0; i < arr.size(); ++i)
     {
         b.add_term(alpha[i]);
     }
@@ -587,12 +587,12 @@ void loose_multiplexing_gadget<FieldT>::generate_r1cs_witness()
 {
     /* assumes that idx can be fit in ulong; true for our purposes for now */
     const bigint<FieldT::num_limbs> valint = this->pb.val(index).as_bigint();
-    uint64_t idx = valint.as_ulong();
+    unsigned long idx = valint.as_ulong();
     const bigint<FieldT::num_limbs> arrsize(arr.size());
 
     if (idx >= arr.size() || mpn_cmp(valint.data, arrsize.data, FieldT::num_limbs) >= 0)
     {
-        for (uint64_t i = 0; i < arr.size(); ++i)
+        for (size_t i = 0; i < arr.size(); ++i)
         {
             this->pb.val(alpha[i]) = FieldT::zero();
         }
@@ -601,7 +601,7 @@ void loose_multiplexing_gadget<FieldT>::generate_r1cs_witness()
     }
     else
     {
-        for (uint64_t i = 0; i < arr.size(); ++i)
+        for (size_t i = 0; i < arr.size(); ++i)
         {
             this->pb.val(alpha[i]) = (i == idx ? FieldT::one() : FieldT::zero());
         }
@@ -613,13 +613,13 @@ void loose_multiplexing_gadget<FieldT>::generate_r1cs_witness()
 }
 
 template<typename FieldT>
-void test_loose_multiplexing_gadget(const uint64_t n)
+void test_loose_multiplexing_gadget(const size_t n)
 {
     printf("testing loose_multiplexing_gadget on 2**%zu pb_variable<FieldT> array inputs\n", n);
     protoboard<FieldT> pb;
 
     pb_variable_array<FieldT> arr;
-    arr.allocate(pb, UINT64_C(1)<<n, "arr");
+    arr.allocate(pb, 1ul<<n, "arr");
     pb_variable<FieldT> index, result, success_flag;
     index.allocate(pb, "index");
     result.allocate(pb, "result");
@@ -628,20 +628,20 @@ void test_loose_multiplexing_gadget(const uint64_t n)
     loose_multiplexing_gadget<FieldT> g(pb, arr, index, result, success_flag, "g");
     g.generate_r1cs_constraints();
 
-    for (uint64_t i = 0; i < UINT64_C(1)<<n; ++i)
+    for (size_t i = 0; i < 1ul<<n; ++i)
     {
-        pb.val(arr[i]) = FieldT((19*i) % (UINT64_C(1)<<n));
+        pb.val(arr[i]) = FieldT((19*i) % (1ul<<n));
     }
 
-    for (int idx = -1; idx <= (int)(UINT64_C(1)<<n); ++idx)
+    for (int idx = -1; idx <= (int)(1ul<<n); ++idx)
     {
         pb.val(index) = FieldT(idx);
         g.generate_r1cs_witness();
 
-        if (0 <= idx && idx <= (int)(UINT64_C(1)<<n) - 1)
+        if (0 <= idx && idx <= (int)(1ul<<n) - 1)
         {
             printf("demuxing element %d (in bounds)\n", idx);
-            assert(pb.val(result) == FieldT((19*idx) % (UINT64_C(1)<<n)));
+            assert(pb.val(result) == FieldT((19*idx) % (1ul<<n)));
             assert(pb.val(success_flag) == FieldT::one());
             assert(pb.is_satisfied());
             pb.val(result) -= FieldT::one();
@@ -666,7 +666,7 @@ void create_linear_combination_constraints(protoboard<FieldT> &pb,
                                            const VarT &target,
                                            const std::string &annotation_prefix)
 {
-    for (uint64_t i = 0; i < base.size(); ++i)
+    for (size_t i = 0; i < base.size(); ++i)
     {
         linear_combination<FieldT> a, b, c;
 
@@ -690,7 +690,7 @@ void create_linear_combination_witness(protoboard<FieldT> &pb,
                                        const std::vector<std::pair<VarT, FieldT> > &v,
                                        const VarT &target)
 {
-    for (uint64_t i = 0; i < base.size(); ++i)
+    for (size_t i = 0; i < base.size(); ++i)
     {
         pb.val(target.all_vars[i]) = base[i];
 

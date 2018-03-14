@@ -26,7 +26,7 @@ virtualenv venv
 . venv/bin/activate
 pip install --global-option=build_ext --global-option="-L$(pwd)/src/leveldb/" --global-option="-I$(pwd)/src/leveldb/include/" plyvel
 pip install progressbar2
-LD_LIBRARY_PATH=src/leveldb python qa/zcash/create_benchmark_archive.py
+LD_LIBRARY_PATH=src/leveldb python qa/litecoinz/create_benchmark_archive.py
 """ % LITECOINZ_CLI
 
 def check_deps():

@@ -22,7 +22,7 @@
 using namespace libsnark;
 
 template<typename FieldT>
-void test_qap(const uint64_t qap_degree, const uint64_t num_inputs, const bool binary_input)
+void test_qap(const size_t qap_degree, const size_t num_inputs, const bool binary_input)
 {
     /*
       We construct an instance where the QAP degree is qap_degree.
@@ -33,7 +33,7 @@ void test_qap(const uint64_t qap_degree, const uint64_t num_inputs, const bool b
     ASSERT_LE(num_inputs + 1, qap_degree);
     enter_block("Call to test_qap");
 
-    const uint64_t num_constraints = qap_degree - num_inputs - 1;
+    const size_t num_constraints = qap_degree - num_inputs - 1;
 
     print_indent(); printf("* QAP degree: %zu\n", qap_degree);
     print_indent(); printf("* Number of inputs: %zu\n", num_inputs);
@@ -88,17 +88,17 @@ TEST(relations, qap)
 {
     start_profiling();
 
-    const uint64_t num_inputs = 10;
+    const size_t num_inputs = 10;
 
     enter_block("Test QAP with binary input");
 
-    test_qap<Fr<alt_bn128_pp> >(UINT64_C(1) << 21, num_inputs, true);
+    test_qap<Fr<alt_bn128_pp> >(1ul << 21, num_inputs, true);
 
     leave_block("Test QAP with binary input");
 
     enter_block("Test QAP with field input");
 
-    test_qap<Fr<alt_bn128_pp> >(UINT64_C(1) << 21, num_inputs, false);
+    test_qap<Fr<alt_bn128_pp> >(1ul << 21, num_inputs, false);
 
     leave_block("Test QAP with field input");
 }

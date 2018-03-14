@@ -10,12 +10,12 @@
 namespace libsnark {
 
 #ifdef PROFILE_OP_COUNTS
-int64_t alt_bn128_G2::add_cnt = 0;
-int64_t alt_bn128_G2::dbl_cnt = 0;
+long long alt_bn128_G2::add_cnt = 0;
+long long alt_bn128_G2::dbl_cnt = 0;
 #endif
 
-std::vector<uint64_t> alt_bn128_G2::wnaf_window_table;
-std::vector<uint64_t> alt_bn128_G2::fixed_base_exp_window_table;
+std::vector<size_t> alt_bn128_G2::wnaf_window_table;
+std::vector<size_t> alt_bn128_G2::fixed_base_exp_window_table;
 alt_bn128_G2 alt_bn128_G2::G2_zero;
 alt_bn128_G2 alt_bn128_G2::G2_one;
 
@@ -491,7 +491,7 @@ void batch_to_special_all_non_zeros<alt_bn128_G2>(std::vector<alt_bn128_G2> &vec
 
     const alt_bn128_Fq2 one = alt_bn128_Fq2::one();
 
-    for (uint64_t i = 0; i < vec.size(); ++i)
+    for (size_t i = 0; i < vec.size(); ++i)
     {
         alt_bn128_Fq2 Z2 = Z_vec[i].squared();
         alt_bn128_Fq2 Z3 = Z_vec[i] * Z2;

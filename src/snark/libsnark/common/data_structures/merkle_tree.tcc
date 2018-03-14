@@ -29,7 +29,7 @@ typename HashT::hash_value_type two_to_one_CRH(const typename HashT::hash_value_
     new_input.insert(new_input.end(), l.begin(), l.end());
     new_input.insert(new_input.end(), r.begin(), r.end());
 
-    const uint64_t digest_size = HashT::get_digest_len();
+    const size_t digest_size = HashT::get_digest_len();
     assert(l.size() == digest_size);
     assert(r.size() == digest_size);
 
@@ -37,10 +37,10 @@ typename HashT::hash_value_type two_to_one_CRH(const typename HashT::hash_value_
 }
 
 template<typename HashT>
-merkle_tree<HashT>::merkle_tree(const uint64_t depth, const uint64_t value_size) :
+merkle_tree<HashT>::merkle_tree(const size_t depth, const size_t value_size) :
     depth(depth), value_size(value_size)
 {
-    assert(depth < sizeof(uint64_t) * 8);
+    assert(depth < sizeof(size_t) * 8);
 
     digest_size = HashT::get_digest_len();
     assert(value_size <= digest_size);
@@ -48,7 +48,7 @@ merkle_tree<HashT>::merkle_tree(const uint64_t depth, const uint64_t value_size)
     hash_value_type last(digest_size);
     hash_defaults.reserve(depth+1);
     hash_defaults.emplace_back(last);
-    for (uint64_t i = 0; i < depth; ++i)
+    for (size_t i = 0; i < depth; ++i)
     {
         last = two_to_one_CRH<HashT>(last, last);
         hash_defaults.emplace_back(last);
@@ -58,26 +58,26 @@ merkle_tree<HashT>::merkle_tree(const uint64_t depth, const uint64_t value_size)
 }
 
 template<typename HashT>
-merkle_tree<HashT>::merkle_tree(const uint64_t depth,
-                                const uint64_t value_size,
+merkle_tree<HashT>::merkle_tree(const size_t depth,
+                                const size_t value_size,
                                 const std::vector<bit_vector> &contents_as_vector) :
     merkle_tree<HashT>(depth, value_size)
 {
     assert(log2(contents_as_vector.size()) <= depth);
-    for (uint64_t address = 0; address < contents_as_vector.size(); ++address)
+    for (size_t address = 0; address < contents_as_vector.size(); ++address)
     {
-        const uint64_t idx = address + (UINT64_C(1)<<depth) - 1;
+        const size_t idx = address + (1ul<<depth) - 1;
         values[idx] = contents_as_vector[address];
         hashes[idx] = contents_as_vector[address];
         hashes[idx].resize(digest_size);
     }
 
-    uint64_t idx_begin = (UINT64_C(1)<<depth) - 1;
-    uint64_t idx_end = contents_as_vector.size() + ((UINT64_C(1)<<depth) - 1);
+    size_t idx_begin = (1ul<<depth) - 1;
+    size_t idx_end = contents_as_vector.size() + ((1ul<<depth) - 1);
 
     for (int layer = depth; layer > 0; --layer)
     {
-        for (uint64_t idx = idx_begin; idx < idx_end; idx += 2)
+        for (size_t idx = idx_begin; idx < idx_end; idx += 2)
         {
             hash_value_type l = hashes[idx]; // this is sound, because idx_begin is always a left child
             hash_value_type r = (idx + 1 < idx_end ? hashes[idx+1] : hash_defaults[layer]);
@@ -92,21 +92,21 @@ merkle_tree<HashT>::merkle_tree(const uint64_t depth,
 }
 
 template<typename HashT>
-merkle_tree<HashT>::merkle_tree(const uint64_t depth,
-                                const uint64_t value_size,
-                                const std::map<uint64_t, bit_vector> &contents) :
+merkle_tree<HashT>::merkle_tree(const size_t depth,
+                                const size_t value_size,
+                                const std::map<size_t, bit_vector> &contents) :
     merkle_tree<HashT>(depth, value_size)
 {
 
     if (!contents.empty())
     {
-        assert(contents.rbegin()->first < UINT64_C(1)<<depth);
+        assert(contents.rbegin()->first < 1ul<<depth);
 
         for (auto it = contents.begin(); it != contents.end(); ++it)
         {
-            const uint64_t address = it->first;
+            const size_t address = it->first;
             const bit_vector value = it->second;
-            const uint64_t idx = address + (UINT64_C(1)<<depth) - 1;
+            const size_t idx = address + (1ul<<depth) - 1;
 
             values[address] = value;
             hashes[idx] = value;
@@ -121,7 +121,7 @@ merkle_tree<HashT>::merkle_tree(const uint64_t depth,
 
             for (auto it = hashes.begin(); it != last_it; ++it)
             {
-                const uint64_t idx = it->first;
+                const size_t idx = it->first;
                 const hash_value_type hash = it->second;
 
                 if (idx % 2 == 0)
@@ -151,7 +151,7 @@ merkle_tree<HashT>::merkle_tree(const uint64_t depth,
 }
 
 template<typename HashT>
-bit_vector merkle_tree<HashT>::get_value(const uint64_t address) const
+bit_vector merkle_tree<HashT>::get_value(const size_t address) const
 {
     assert(log2(address) <= depth);
 
@@ -163,11 +163,11 @@ bit_vector merkle_tree<HashT>::get_value(const uint64_t address) const
 }
 
 template<typename HashT>
-void merkle_tree<HashT>::set_value(const uint64_t address,
+void merkle_tree<HashT>::set_value(const size_t address,
                                    const bit_vector &value)
 {
     assert(log2(address) <= depth);
-    uint64_t idx = address + (UINT64_C(1)<<depth) - 1;
+    size_t idx = address + (1ul<<depth) - 1;
 
     assert(value.size() == value_size);
     values[address] = value;
@@ -197,19 +197,19 @@ typename HashT::hash_value_type merkle_tree<HashT>::get_root() const
 }
 
 template<typename HashT>
-typename HashT::merkle_authentication_path_type merkle_tree<HashT>::get_path(const uint64_t address) const
+typename HashT::merkle_authentication_path_type merkle_tree<HashT>::get_path(const size_t address) const
 {
     typename HashT::merkle_authentication_path_type result(depth);
     assert(log2(address) <= depth);
-    uint64_t idx = address + (UINT64_C(1)<<depth) - 1;
+    size_t idx = address + (1ul<<depth) - 1;
 
-    for (uint64_t layer = depth; layer > 0; --layer)
+    for (size_t layer = depth; layer > 0; --layer)
     {
-        uint64_t sibling_idx = ((idx + 1) ^ 1) - 1;
+        size_t sibling_idx = ((idx + 1) ^ 1) - 1;
         auto it = hashes.find(sibling_idx);
         if (layer == depth)
         {
-            auto it2 = values.find(sibling_idx - ((UINT64_C(1)<<depth) - 1));
+            auto it2 = values.find(sibling_idx - ((1ul<<depth) - 1));
             result[layer-1] = (it2 == values.end() ? bit_vector(value_size, false) : it2->second);
             result[layer-1].resize(digest_size);
         }
@@ -227,7 +227,7 @@ typename HashT::merkle_authentication_path_type merkle_tree<HashT>::get_path(con
 template<typename HashT>
 void merkle_tree<HashT>::dump() const
 {
-    for (uint64_t i = 0; i < UINT64_C(1)<<depth; ++i)
+    for (size_t i = 0; i < 1ul<<depth; ++i)
     {
         auto it = values.find(i);
         printf("[%zu] -> ", i);

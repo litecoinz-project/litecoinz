@@ -18,8 +18,8 @@
 
 namespace libsnark {
 
-const uint64_t SHA256_digest_size = 256;
-const uint64_t SHA256_block_size = 512;
+const size_t SHA256_digest_size = 256;
+const size_t SHA256_block_size = 512;
 
 template<typename FieldT>
 pb_linear_combination_array<FieldT> SHA256_default_IV(protoboard<FieldT> &pb);
@@ -78,7 +78,7 @@ public:
     pb_linear_combination_array<FieldT> g;
     pb_linear_combination_array<FieldT> h;
     pb_variable<FieldT> W;
-    int64_t K;
+    long K;
     pb_linear_combination_array<FieldT> new_a;
     pb_linear_combination_array<FieldT> new_e;
 
@@ -92,7 +92,7 @@ public:
                                  const pb_linear_combination_array<FieldT> &g,
                                  const pb_linear_combination_array<FieldT> &h,
                                  const pb_variable<FieldT> &W,
-                                 const int64_t &K,
+                                 const long &K,
                                  const pb_linear_combination_array<FieldT> &new_a,
                                  const pb_linear_combination_array<FieldT> &new_e,
                                  const std::string &annotation_prefix);

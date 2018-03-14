@@ -10,12 +10,12 @@
 namespace libsnark {
 
 #ifdef PROFILE_OP_COUNTS
-int64_t alt_bn128_G1::add_cnt = 0;
-int64_t alt_bn128_G1::dbl_cnt = 0;
+long long alt_bn128_G1::add_cnt = 0;
+long long alt_bn128_G1::dbl_cnt = 0;
 #endif
 
-std::vector<uint64_t> alt_bn128_G1::wnaf_window_table;
-std::vector<uint64_t> alt_bn128_G1::fixed_base_exp_window_table;
+std::vector<size_t> alt_bn128_G1::wnaf_window_table;
+std::vector<size_t> alt_bn128_G1::fixed_base_exp_window_table;
 alt_bn128_G1 alt_bn128_G1::G1_zero;
 alt_bn128_G1 alt_bn128_G1::G1_one;
 
@@ -479,13 +479,13 @@ std::istream& operator>>(std::istream& in, std::vector<alt_bn128_G1> &v)
 {
     v.clear();
 
-    uint64_t s;
+    size_t s;
     in >> s;
     consume_newline(in);
 
     v.reserve(s);
 
-    for (uint64_t i = 0; i < s; ++i)
+    for (size_t i = 0; i < s; ++i)
     {
         alt_bn128_G1 g;
         in >> g;
@@ -510,7 +510,7 @@ void batch_to_special_all_non_zeros<alt_bn128_G1>(std::vector<alt_bn128_G1> &vec
 
     const alt_bn128_Fq one = alt_bn128_Fq::one();
 
-    for (uint64_t i = 0; i < vec.size(); ++i)
+    for (size_t i = 0; i < vec.size(); ++i)
     {
         alt_bn128_Fq Z2 = Z_vec[i].squared();
         alt_bn128_Fq Z3 = Z_vec[i] * Z2;

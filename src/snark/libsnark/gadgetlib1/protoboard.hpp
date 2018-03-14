@@ -51,11 +51,11 @@ public:
     bool is_satisfied() const;
     void dump_variables() const;
 
-    uint64_t num_constraints() const;
-    uint64_t num_inputs() const;
-    uint64_t num_variables() const;
+    size_t num_constraints() const;
+    size_t num_inputs() const;
+    size_t num_variables() const;
 
-    void set_input_sizes(const uint64_t primary_input_size);
+    void set_input_sizes(const size_t primary_input_size);
 
     r1cs_variable_assignment<FieldT> full_variable_assignment() const;
     r1cs_primary_input<FieldT> primary_input() const;

@@ -50,14 +50,14 @@ public:
 
     bool is_fully_accumulated() const;
 
-    uint64_t domain_size() const;
-    uint64_t size() const;
-    uint64_t size_in_bits() const;
+    size_t domain_size() const;
+    size_t size() const;
+    size_t size_in_bits() const;
 
     template<typename FieldT>
     accumulation_vector<T> accumulate_chunk(const typename std::vector<FieldT>::const_iterator &it_begin,
                                             const typename std::vector<FieldT>::const_iterator &it_end,
-                                            const uint64_t offset) const;
+                                            const size_t offset) const;
 
 };
 

@@ -82,20 +82,20 @@ std::istream& operator>>(std::istream &in, r1cs_constraint<FieldT> &c)
 }
 
 template<typename FieldT>
-uint64_t r1cs_constraint_system<FieldT>::num_inputs() const
+size_t r1cs_constraint_system<FieldT>::num_inputs() const
 {
     return primary_input_size;
 }
 
 template<typename FieldT>
-uint64_t r1cs_constraint_system<FieldT>::num_variables() const
+size_t r1cs_constraint_system<FieldT>::num_variables() const
 {
     return primary_input_size + auxiliary_input_size;
 }
 
 
 template<typename FieldT>
-uint64_t r1cs_constraint_system<FieldT>::num_constraints() const
+size_t r1cs_constraint_system<FieldT>::num_constraints() const
 {
     return constraints.size();
 }
@@ -105,7 +105,7 @@ bool r1cs_constraint_system<FieldT>::is_valid() const
 {
     if (this->num_inputs() > this->num_variables()) return false;
 
-    for (uint64_t c = 0; c < constraints.size(); ++c)
+    for (size_t c = 0; c < constraints.size(); ++c)
     {
         if (!(constraints[c].a.is_valid(this->num_variables()) &&
               constraints[c].b.is_valid(this->num_variables()) &&
@@ -121,7 +121,7 @@ bool r1cs_constraint_system<FieldT>::is_valid() const
 template<typename FieldT>
 void dump_r1cs_constraint(const r1cs_constraint<FieldT> &constraint,
                           const r1cs_variable_assignment<FieldT> &full_variable_assignment,
-                          const std::map<uint64_t, std::string> &variable_annotations)
+                          const std::map<size_t, std::string> &variable_annotations)
 {
     printf("terms for a:\n"); constraint.a.print_with_assignment(full_variable_assignment, variable_annotations);
     printf("terms for b:\n"); constraint.b.print_with_assignment(full_variable_assignment, variable_annotations);
@@ -138,7 +138,7 @@ bool r1cs_constraint_system<FieldT>::is_satisfied(const r1cs_primary_input<Field
     r1cs_variable_assignment<FieldT> full_variable_assignment = primary_input;
     full_variable_assignment.insert(full_variable_assignment.end(), auxiliary_input.begin(), auxiliary_input.end());
 
-    for (uint64_t c = 0; c < constraints.size(); ++c)
+    for (size_t c = 0; c < constraints.size(); ++c)
     {
         const FieldT ares = constraints[c].a.evaluate(full_variable_assignment);
         const FieldT bres = constraints[c].b.evaluate(full_variable_assignment);
@@ -185,21 +185,21 @@ void r1cs_constraint_system<FieldT>::swap_AB_if_beneficial()
     enter_block("Estimate densities");
     bit_vector touched_by_A(this->num_variables() + 1, false), touched_by_B(this->num_variables() + 1, false);
 
-    for (uint64_t i = 0; i < this->constraints.size(); ++i)
+    for (size_t i = 0; i < this->constraints.size(); ++i)
     {
-        for (uint64_t j = 0; j < this->constraints[i].a.terms.size(); ++j)
+        for (size_t j = 0; j < this->constraints[i].a.terms.size(); ++j)
         {
             touched_by_A[this->constraints[i].a.terms[j].index] = true;
         }
 
-        for (uint64_t j = 0; j < this->constraints[i].b.terms.size(); ++j)
+        for (size_t j = 0; j < this->constraints[i].b.terms.size(); ++j)
         {
             touched_by_B[this->constraints[i].b.terms[j].index] = true;
         }
     }
 
-    uint64_t non_zero_A_count = 0, non_zero_B_count = 0;
-    for (uint64_t i = 0; i < this->num_variables() + 1; ++i)
+    size_t non_zero_A_count = 0, non_zero_B_count = 0;
+    for (size_t i = 0; i < this->num_variables() + 1; ++i)
     {
         non_zero_A_count += touched_by_A[i] ? 1 : 0;
         non_zero_B_count += touched_by_B[i] ? 1 : 0;
@@ -215,7 +215,7 @@ void r1cs_constraint_system<FieldT>::swap_AB_if_beneficial()
     if (non_zero_B_count > non_zero_A_count)
     {
         enter_block("Perform the swap");
-        for (uint64_t i = 0; i < this->constraints.size(); ++i)
+        for (size_t i = 0; i < this->constraints.size(); ++i)
         {
             std::swap(this->constraints[i].a, this->constraints[i].b);
         }
@@ -260,7 +260,7 @@ std::istream& operator>>(std::istream &in, r1cs_constraint_system<FieldT> &cs)
 
     cs.constraints.clear();
 
-    uint64_t s;
+    size_t s;
     in >> s;
 
     char b;
@@ -268,7 +268,7 @@ std::istream& operator>>(std::istream &in, r1cs_constraint_system<FieldT> &cs)
 
     cs.constraints.reserve(s);
 
-    for (uint64_t i = 0; i < s; ++i)
+    for (size_t i = 0; i < s; ++i)
     {
         r1cs_constraint<FieldT> c;
         in >> c;
@@ -282,7 +282,7 @@ template<typename FieldT>
 void r1cs_constraint_system<FieldT>::report_linear_constraint_statistics() const
 {
 #ifdef DEBUG
-    for (uint64_t i = 0; i < constraints.size(); ++i)
+    for (size_t i = 0; i < constraints.size(); ++i)
     {
         auto &constr = constraints[i];
         bool a_is_const = true;

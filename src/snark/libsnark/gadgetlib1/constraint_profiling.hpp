@@ -19,23 +19,23 @@
 
 namespace libsnark {
 
-extern uint64_t constraint_profiling_indent;
+extern size_t constraint_profiling_indent;
 
 struct constraint_profiling_entry {
-    uint64_t indent;
+    size_t indent;
     std::string annotation;
-    uint64_t count;
+    size_t count;
 };
 
 extern std::vector<constraint_profiling_entry> constraint_profiling_table;
 
 #define PROFILE_CONSTRAINTS(pb, annotation)                             \
-    for (uint64_t _num_constraints_before = pb.num_constraints(), _iter = (++constraint_profiling_indent, 0), _cp_pos = constraint_profiling_table.size(); \
+    for (size_t _num_constraints_before = pb.num_constraints(), _iter = (++constraint_profiling_indent, 0), _cp_pos = constraint_profiling_table.size(); \
          _iter == 0;                                                    \
          constraint_profiling_table.insert(constraint_profiling_table.begin() + _cp_pos, constraint_profiling_entry{--constraint_profiling_indent, annotation, pb.num_constraints() - _num_constraints_before}), \
          _iter = 1)
 
-uint64_t PRINT_CONSTRAINT_PROFILING(); // returns # of top level constraints
+size_t PRINT_CONSTRAINT_PROFILING(); // returns # of top level constraints
 
 } // libsnark
 

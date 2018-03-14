@@ -52,8 +52,8 @@ struct r1cs_example {
  * - the R1CS input consists of ``full'' field elements (typically require the whole log|Field| bits to represent).
  */
 template<typename FieldT>
-r1cs_example<FieldT> generate_r1cs_example_with_field_input(const uint64_t num_constraints,
-                                                            const uint64_t num_inputs);
+r1cs_example<FieldT> generate_r1cs_example_with_field_input(const size_t num_constraints,
+                                                            const size_t num_inputs);
 
 /**
  * Generate a R1CS example such that:
@@ -63,8 +63,8 @@ r1cs_example<FieldT> generate_r1cs_example_with_field_input(const uint64_t num_c
  * - the R1CS input consists of binary values (as opposed to ``full'' field elements).
  */
 template<typename FieldT>
-r1cs_example<FieldT> generate_r1cs_example_with_binary_input(const uint64_t num_constraints,
-                                                             const uint64_t num_inputs);
+r1cs_example<FieldT> generate_r1cs_example_with_binary_input(const size_t num_constraints,
+                                                             const size_t num_inputs);
 
 } // libsnark
 

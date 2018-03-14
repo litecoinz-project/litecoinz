@@ -39,9 +39,9 @@ qap_instance<FieldT> r1cs_to_qap_instance_map(const r1cs_constraint_system<Field
 
     const std::shared_ptr<evaluation_domain<FieldT> > domain = get_evaluation_domain<FieldT>(cs.num_constraints() + cs.num_inputs() + 1);
 
-    std::vector<std::map<uint64_t, FieldT> > A_in_Lagrange_basis(cs.num_variables()+1);
-    std::vector<std::map<uint64_t, FieldT> > B_in_Lagrange_basis(cs.num_variables()+1);
-    std::vector<std::map<uint64_t, FieldT> > C_in_Lagrange_basis(cs.num_variables()+1);
+    std::vector<std::map<size_t, FieldT> > A_in_Lagrange_basis(cs.num_variables()+1);
+    std::vector<std::map<size_t, FieldT> > B_in_Lagrange_basis(cs.num_variables()+1);
+    std::vector<std::map<size_t, FieldT> > C_in_Lagrange_basis(cs.num_variables()+1);
 
     enter_block("Compute polynomials A, B, C in Lagrange basis");
     /**
@@ -49,26 +49,26 @@ qap_instance<FieldT> r1cs_to_qap_instance_map(const r1cs_constraint_system<Field
      *     input_i * 0 = 0
      * to ensure soundness of input consistency
      */
-    for (uint64_t i = 0; i <= cs.num_inputs(); ++i)
+    for (size_t i = 0; i <= cs.num_inputs(); ++i)
     {
         A_in_Lagrange_basis[i][cs.num_constraints() + i] = FieldT::one();
     }
     /* process all other constraints */
-    for (uint64_t i = 0; i < cs.num_constraints(); ++i)
+    for (size_t i = 0; i < cs.num_constraints(); ++i)
     {
-        for (uint64_t j = 0; j < cs.constraints[i].a.terms.size(); ++j)
+        for (size_t j = 0; j < cs.constraints[i].a.terms.size(); ++j)
         {
             A_in_Lagrange_basis[cs.constraints[i].a.terms[j].index][i] +=
                 cs.constraints[i].a.terms[j].coeff;
         }
 
-        for (uint64_t j = 0; j < cs.constraints[i].b.terms.size(); ++j)
+        for (size_t j = 0; j < cs.constraints[i].b.terms.size(); ++j)
         {
             B_in_Lagrange_basis[cs.constraints[i].b.terms[j].index][i] +=
                 cs.constraints[i].b.terms[j].coeff;
         }
 
-        for (uint64_t j = 0; j < cs.constraints[i].c.terms.size(); ++j)
+        for (size_t j = 0; j < cs.constraints[i].c.terms.size(); ++j)
         {
             C_in_Lagrange_basis[cs.constraints[i].c.terms[j].index][i] +=
                 cs.constraints[i].c.terms[j].coeff;
@@ -125,26 +125,26 @@ qap_instance_evaluation<FieldT> r1cs_to_qap_instance_map_with_evaluation(const r
      *     input_i * 0 = 0
      * to ensure soundness of input consistency
      */
-    for (uint64_t i = 0; i <= cs.num_inputs(); ++i)
+    for (size_t i = 0; i <= cs.num_inputs(); ++i)
     {
         At[i] = u[cs.num_constraints() + i];
     }
     /* process all other constraints */
-    for (uint64_t i = 0; i < cs.num_constraints(); ++i)
+    for (size_t i = 0; i < cs.num_constraints(); ++i)
     {
-        for (uint64_t j = 0; j < cs.constraints[i].a.terms.size(); ++j)
+        for (size_t j = 0; j < cs.constraints[i].a.terms.size(); ++j)
         {
             At[cs.constraints[i].a.terms[j].index] +=
                 u[i]*cs.constraints[i].a.terms[j].coeff;
         }
 
-        for (uint64_t j = 0; j < cs.constraints[i].b.terms.size(); ++j)
+        for (size_t j = 0; j < cs.constraints[i].b.terms.size(); ++j)
         {
             Bt[cs.constraints[i].b.terms[j].index] +=
                 u[i]*cs.constraints[i].b.terms[j].coeff;
         }
 
-        for (uint64_t j = 0; j < cs.constraints[i].c.terms.size(); ++j)
+        for (size_t j = 0; j < cs.constraints[i].c.terms.size(); ++j)
         {
             Ct[cs.constraints[i].c.terms[j].index] +=
                 u[i]*cs.constraints[i].c.terms[j].coeff;
@@ -152,7 +152,7 @@ qap_instance_evaluation<FieldT> r1cs_to_qap_instance_map_with_evaluation(const r
     }
 
     FieldT ti = FieldT::one();
-    for (uint64_t i = 0; i < domain->m+1; ++i)
+    for (size_t i = 0; i < domain->m+1; ++i)
     {
         Ht.emplace_back(ti);
         ti *= t;
@@ -224,12 +224,12 @@ qap_witness<FieldT> r1cs_to_qap_witness_map(const r1cs_constraint_system<FieldT>
     std::vector<FieldT> aA(domain->m, FieldT::zero()), aB(domain->m, FieldT::zero());
 
     /* account for the additional constraints input_i * 0 = 0 */
-    for (uint64_t i = 0; i <= cs.num_inputs(); ++i)
+    for (size_t i = 0; i <= cs.num_inputs(); ++i)
     {
         aA[i+cs.num_constraints()] = (i > 0 ? full_variable_assignment[i-1] : FieldT::one());
     }
     /* account for all other constraints */
-    for (uint64_t i = 0; i < cs.num_constraints(); ++i)
+    for (size_t i = 0; i < cs.num_constraints(); ++i)
     {
         aA[i] += cs.constraints[i].a.evaluate(full_variable_assignment);
         aB[i] += cs.constraints[i].b.evaluate(full_variable_assignment);
@@ -250,7 +250,7 @@ qap_witness<FieldT> r1cs_to_qap_witness_map(const r1cs_constraint_system<FieldT>
 #pragma omp parallel for
 #endif
     /* add coefficients of the polynomial (d2*A + d1*B - d3) + d1*d2*Z */
-    for (uint64_t i = 0; i < domain->m; ++i)
+    for (size_t i = 0; i < domain->m; ++i)
     {
         coefficients_for_H[i] = d2*aA[i] + d1*aB[i];
     }
@@ -271,7 +271,7 @@ qap_witness<FieldT> r1cs_to_qap_witness_map(const r1cs_constraint_system<FieldT>
 #ifdef MULTICORE
 #pragma omp parallel for
 #endif
-    for (uint64_t i = 0; i < domain->m; ++i)
+    for (size_t i = 0; i < domain->m; ++i)
     {
         H_tmp[i] = aA[i]*aB[i];
     }
@@ -279,7 +279,7 @@ qap_witness<FieldT> r1cs_to_qap_witness_map(const r1cs_constraint_system<FieldT>
 
     enter_block("Compute evaluation of polynomial C on set S");
     std::vector<FieldT> aC(domain->m, FieldT::zero());
-    for (uint64_t i = 0; i < cs.num_constraints(); ++i)
+    for (size_t i = 0; i < cs.num_constraints(); ++i)
     {
         aC[i] += cs.constraints[i].c.evaluate(full_variable_assignment);
     }
@@ -296,7 +296,7 @@ qap_witness<FieldT> r1cs_to_qap_witness_map(const r1cs_constraint_system<FieldT>
 #ifdef MULTICORE
 #pragma omp parallel for
 #endif
-    for (uint64_t i = 0; i < domain->m; ++i)
+    for (size_t i = 0; i < domain->m; ++i)
     {
         H_tmp[i] = (H_tmp[i]-aC[i]);
     }
@@ -315,7 +315,7 @@ qap_witness<FieldT> r1cs_to_qap_witness_map(const r1cs_constraint_system<FieldT>
 #ifdef MULTICORE
 #pragma omp parallel for
 #endif
-    for (uint64_t i = 0; i < domain->m; ++i)
+    for (size_t i = 0; i < domain->m; ++i)
     {
         coefficients_for_H[i] += H_tmp[i];
     }

@@ -112,20 +112,20 @@ std::istream& operator>>(std::istream &in, r1cs_constraint_system<FieldT> &cs);
 template<typename FieldT>
 class r1cs_constraint_system {
 public:
-    uint64_t primary_input_size;
-    uint64_t auxiliary_input_size;
+    size_t primary_input_size;
+    size_t auxiliary_input_size;
 
     std::vector<r1cs_constraint<FieldT> > constraints;
 
     r1cs_constraint_system() : primary_input_size(0), auxiliary_input_size(0) {}
 
-    uint64_t num_inputs() const;
-    uint64_t num_variables() const;
-    uint64_t num_constraints() const;
+    size_t num_inputs() const;
+    size_t num_variables() const;
+    size_t num_constraints() const;
 
 #ifdef DEBUG
-    std::map<uint64_t, std::string> constraint_annotations;
-    std::map<uint64_t, std::string> variable_annotations;
+    std::map<size_t, std::string> constraint_annotations;
+    std::map<size_t, std::string> variable_annotations;
 #endif
 
     bool is_valid() const;

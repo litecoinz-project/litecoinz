@@ -39,7 +39,7 @@ void _multiply_by_coset(std::vector<FieldT> &a, const FieldT &g);
  * Compute the m Lagrange coefficients, relative to the set S={omega^{0},...,omega^{m-1}}, at the field element t.
  */
 template<typename FieldT>
-std::vector<FieldT> _basic_radix2_lagrange_coeffs(const uint64_t m, const FieldT &t);
+std::vector<FieldT> _basic_radix2_lagrange_coeffs(const size_t m, const FieldT &t);
 
 } // libsnark
 

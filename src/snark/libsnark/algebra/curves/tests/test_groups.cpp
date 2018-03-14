@@ -122,7 +122,7 @@ void test_output()
 {
     GroupT g = GroupT::zero();
 
-    for (uint64_t i = 0; i < 1000; ++i)
+    for (size_t i = 0; i < 1000; ++i)
     {
         std::stringstream ss;
         ss << g;
