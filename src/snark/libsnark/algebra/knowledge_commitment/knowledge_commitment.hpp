@@ -54,7 +54,7 @@ struct knowledge_commitment {
 
     void print() const;
 
-    static uint64_t size_in_bits();
+    static size_t size_in_bits();
 };
 
 template<typename T1, typename T2, mp_size_t m>

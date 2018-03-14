@@ -44,22 +44,22 @@ private:
 public:
 
     std::vector<hash_value_type> hash_defaults;
-    std::map<uint64_t, bit_vector> values;
-    std::map<uint64_t, hash_value_type> hashes;
+    std::map<size_t, bit_vector> values;
+    std::map<size_t, hash_value_type> hashes;
 
-    uint64_t depth;
-    uint64_t value_size;
-    uint64_t digest_size;
+    size_t depth;
+    size_t value_size;
+    size_t digest_size;
 
-    merkle_tree(const uint64_t depth, const uint64_t value_size);
-    merkle_tree(const uint64_t depth, const uint64_t value_size, const std::vector<bit_vector> &contents_as_vector);
-    merkle_tree(const uint64_t depth, const uint64_t value_size, const std::map<uint64_t, bit_vector> &contents);
+    merkle_tree(const size_t depth, const size_t value_size);
+    merkle_tree(const size_t depth, const size_t value_size, const std::vector<bit_vector> &contents_as_vector);
+    merkle_tree(const size_t depth, const size_t value_size, const std::map<size_t, bit_vector> &contents);
 
-    bit_vector get_value(const uint64_t address) const;
-    void set_value(const uint64_t address, const bit_vector &value);
+    bit_vector get_value(const size_t address) const;
+    void set_value(const size_t address, const bit_vector &value);
 
     hash_value_type get_root() const;
-    merkle_authentication_path_type get_path(const uint64_t address) const;
+    merkle_authentication_path_type get_path(const size_t address) const;
 
     void dump() const;
 };

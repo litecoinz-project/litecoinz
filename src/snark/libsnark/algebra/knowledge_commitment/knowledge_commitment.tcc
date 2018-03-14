@@ -85,7 +85,7 @@ void knowledge_commitment<T1,T2>::print() const
 }
 
 template<typename T1, typename T2>
-uint64_t knowledge_commitment<T1,T2>::size_in_bits()
+size_t knowledge_commitment<T1,T2>::size_in_bits()
 {
         return T1::size_in_bits() + T2::size_in_bits();
 }

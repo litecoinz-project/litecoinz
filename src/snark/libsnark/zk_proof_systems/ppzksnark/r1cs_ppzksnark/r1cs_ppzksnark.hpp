@@ -95,27 +95,27 @@ public:
         K_query(std::move(K_query))
     {};
 
-    uint64_t G1_size() const
+    size_t G1_size() const
     {
         return 2*(A_query.domain_size() + C_query.domain_size()) + B_query.domain_size() + H_query.size() + K_query.size();
     }
 
-    uint64_t G2_size() const
+    size_t G2_size() const
     {
         return B_query.domain_size();
     }
 
-    uint64_t G1_sparse_size() const
+    size_t G1_sparse_size() const
     {
         return 2*(A_query.size() + C_query.size()) + B_query.size() + H_query.size() + K_query.size();
     }
 
-    uint64_t G2_sparse_size() const
+    size_t G2_sparse_size() const
     {
         return B_query.size();
     }
 
-    uint64_t size_in_bits() const
+    size_t size_in_bits() const
     {
         return A_query.size_in_bits() + B_query.size_in_bits() + C_query.size_in_bits() + libsnark::size_in_bits(H_query) + libsnark::size_in_bits(K_query);
     }
@@ -181,17 +181,17 @@ public:
         encoded_IC_query(eIC)
     {};
 
-    uint64_t G1_size() const
+    size_t G1_size() const
     {
         return 2 + encoded_IC_query.size();
     }
 
-    uint64_t G2_size() const
+    size_t G2_size() const
     {
         return 5;
     }
 
-    uint64_t size_in_bits() const
+    size_t size_in_bits() const
     {
         return (2 * G1<ppT>::size_in_bits() + encoded_IC_query.size_in_bits() + 5 * G2<ppT>::size_in_bits());
     }
@@ -207,7 +207,7 @@ public:
     friend std::ostream& operator<< <ppT>(std::ostream &out, const r1cs_ppzksnark_verification_key<ppT> &vk);
     friend std::istream& operator>> <ppT>(std::istream &in, r1cs_ppzksnark_verification_key<ppT> &vk);
 
-    static r1cs_ppzksnark_verification_key<ppT> dummy_verification_key(const uint64_t input_size);
+    static r1cs_ppzksnark_verification_key<ppT> dummy_verification_key(const size_t input_size);
 };
 
 
@@ -287,7 +287,7 @@ std::istream& operator>>(std::istream &in, r1cs_ppzksnark_proof<ppT> &proof);
  * A proof for the R1CS ppzkSNARK.
  *
  * While the proof has a structure, externally one merely opaquely produces,
- * seralizes/deserializes, and verifies proofs. We only expose some information
+ * serializes/deserializes, and verifies proofs. We only expose some information
  * about the structure for statistics purposes.
  */
 template<typename ppT>
@@ -323,17 +323,17 @@ public:
         g_K(std::move(g_K))
     {};
 
-    uint64_t G1_size() const
+    size_t G1_size() const
     {
         return 7;
     }
 
-    uint64_t G2_size() const
+    size_t G2_size() const
     {
         return 1;
     }
 
-    uint64_t size_in_bits() const
+    size_t size_in_bits() const
     {
         return G1_size() * G1<ppT>::size_in_bits() + G2_size() * G2<ppT>::size_in_bits();
     }

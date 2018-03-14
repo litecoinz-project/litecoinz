@@ -26,10 +26,10 @@
 namespace libsnark {
 
 template<typename FieldT>
-std::shared_ptr<evaluation_domain<FieldT> > get_evaluation_domain(const uint64_t min_size)
+std::shared_ptr<evaluation_domain<FieldT> > get_evaluation_domain(const size_t min_size)
 {
     assert(min_size > 1);
-    const uint64_t log_min_size = log2(min_size);
+    const size_t log_min_size = log2(min_size);
     assert(log_min_size <= (FieldT::s+1));
 
     std::shared_ptr<evaluation_domain<FieldT> > result;
@@ -54,9 +54,9 @@ std::shared_ptr<evaluation_domain<FieldT> > get_evaluation_domain(const uint64_t
     }
     else
     {
-        const uint64_t big = UINT64_C(1)<<(log2(min_size)-1);
-        const uint64_t small = min_size - big;
-        const uint64_t rounded_small = (UINT64_C(1)<<log2(small));
+        const size_t big = 1ul<<(log2(min_size)-1);
+        const size_t small = min_size - big;
+        const size_t rounded_small = (1ul<<log2(small));
         if (big == rounded_small)
         {
             if (log2(big + rounded_small) < FieldT::s+1)
@@ -90,7 +90,7 @@ std::shared_ptr<evaluation_domain<FieldT> > get_evaluation_domain(const uint64_t
 }
 
 template<typename FieldT>
-FieldT lagrange_eval(const uint64_t m, const std::vector<FieldT> &domain, const FieldT &t, const uint64_t idx)
+FieldT lagrange_eval(const size_t m, const std::vector<FieldT> &domain, const FieldT &t, const size_t idx)
 {
     assert(m == domain.size());
     assert(idx < m);
@@ -98,7 +98,7 @@ FieldT lagrange_eval(const uint64_t m, const std::vector<FieldT> &domain, const 
     FieldT num = FieldT::one();
     FieldT denom = FieldT::one();
 
-    for (uint64_t k = 0; k < m; ++k)
+    for (size_t k = 0; k < m; ++k)
     {
         if (k == idx)
         {

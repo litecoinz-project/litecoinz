@@ -24,14 +24,14 @@ public:
 
     FieldT omega;
 
-    basic_radix2_domain(const uint64_t m);
+    basic_radix2_domain(const size_t m);
 
     void FFT(std::vector<FieldT> &a);
     void iFFT(std::vector<FieldT> &a);
     void cosetFFT(std::vector<FieldT> &a, const FieldT &g);
     void icosetFFT(std::vector<FieldT> &a, const FieldT &g);
     std::vector<FieldT> lagrange_coeffs(const FieldT &t);
-    FieldT get_element(const uint64_t idx);
+    FieldT get_element(const size_t idx);
     FieldT compute_Z(const FieldT &t);
     void add_poly_Z(const FieldT &coeff, std::vector<FieldT> &H);
     void divide_by_Z_on_coset(std::vector<FieldT> &P);

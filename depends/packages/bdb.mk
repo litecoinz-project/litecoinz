@@ -4,6 +4,7 @@ $(package)_download_path=http://download.oracle.com/berkeley-db
 $(package)_file_name=db-$($(package)_version).tar.gz
 $(package)_sha256_hash=a9c5e2b004a5777aa03510cfe5cd766a4a3b777713406b02809c17c8e0e7a8fb
 $(package)_build_subdir=build_unix
+$(package)_patches=clang.patch
 
 define $(package)_set_vars
 $(package)_config_opts=--disable-shared --enable-cxx --disable-replication
@@ -15,6 +16,7 @@ endef
 
 define $(package)_preprocess_cmds
   sed -i -e "s/WinIoCtl.h/winioctl.h/g" src/dbinc/win_db.h && \
+  patch -p1 < $($(package)_patch_dir)/clang.patch && \
   cp -f $(BASEDIR)/config.guess $(BASEDIR)/config.sub dist
 endef
 

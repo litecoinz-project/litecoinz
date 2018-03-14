@@ -17,19 +17,19 @@
 namespace libsnark {
 
 template<mp_size_t n>
-bigint<n>::bigint(const uint64_t x) /// Initalize from a small integer
+bigint<n>::bigint(const unsigned long x) /// Initialize from a small integer
 {
-    static_assert(UINT64_MAX <= GMP_NUMB_MAX, "uint64_t does not fit in a GMP limb");
+    static_assert(ULONG_MAX <= GMP_NUMB_MAX, "unsigned long does not fit in a GMP limb");
     this->data[0] = x;
 }
 
 template<mp_size_t n>
 bigint<n>::bigint(const char* s) /// Initialize from a string containing an integer in decimal notation
 {
-    uint64_t l = strlen(s);
+    size_t l = strlen(s);
     unsigned char* s_copy = new unsigned char[l];
 
-    for (uint64_t i = 0; i < l; ++i)
+    for (size_t i = 0; i < l; ++i)
     {
         assert(s[i] >= '0' && s[i] <= '9');
         s_copy[i] = s[i] - '0';
@@ -47,7 +47,7 @@ bigint<n>::bigint(const mpz_t r) /// Initialize from MPZ element
     mpz_t k;
     mpz_init_set(k, r);
 
-    for (uint64_t i = 0; i < n; ++i)
+    for (size_t i = 0; i < n; ++i)
     {
         data[i] = mpz_get_ui(k);
         mpz_fdiv_q_2exp(k, k, GMP_NUMB_BITS);
@@ -102,10 +102,10 @@ bool bigint<n>::is_zero() const
 }
 
 template<mp_size_t n>
-uint64_t bigint<n>::num_bits() const
+size_t bigint<n>::num_bits() const
 {
 /*
-    for (int64_t i = max_bits(); i >= 0; --i)
+    for (long i = max_bits(); i >= 0; --i)
     {
         if (this->test_bit(i))
         {
@@ -115,7 +115,7 @@ uint64_t bigint<n>::num_bits() const
 
     return 0;
 */
-    for (int64_t i = n-1; i >= 0; --i)
+    for (long i = n-1; i >= 0; --i)
     {
         mp_limb_t x = this->data[i];
         if (x == 0)
@@ -124,14 +124,14 @@ uint64_t bigint<n>::num_bits() const
         }
         else
         {
-            return ((i+1) * GMP_NUMB_BITS) - __builtin_clzll(x);
+            return ((i+1) * GMP_NUMB_BITS) - __builtin_clzl(x);
         }
     }
     return 0;
 }
 
 template<mp_size_t n>
-uint64_t bigint<n>::as_ulong() const
+unsigned long bigint<n>::as_ulong() const
 {
     return this->data[0];
 }
@@ -149,7 +149,7 @@ void bigint<n>::to_mpz(mpz_t r) const
 }
 
 template<mp_size_t n>
-bool bigint<n>::test_bit(const uint64_t bitno) const
+bool bigint<n>::test_bit(const std::size_t bitno) const
 {
     if (bitno >= n * GMP_NUMB_BITS)
     {
@@ -157,8 +157,8 @@ bool bigint<n>::test_bit(const uint64_t bitno) const
     }
     else
     {
-        const uint64_t part = bitno/GMP_NUMB_BITS;
-        const uint64_t bit = bitno - (GMP_NUMB_BITS*part);
+        const std::size_t part = bitno/GMP_NUMB_BITS;
+        const std::size_t bit = bitno - (GMP_NUMB_BITS*part);
         const mp_limb_t one = 1;
         return (this->data[part] & (one<<bit));
     }
@@ -257,10 +257,10 @@ std::istream& operator>>(std::istream &in, bigint<n> &b)
     std::string s;
     in >> s;
 
-    uint64_t l = s.size();
+    size_t l = s.size();
     unsigned char* s_copy = new unsigned char[l];
 
-    for (uint64_t i = 0; i < l; ++i)
+    for (size_t i = 0; i < l; ++i)
     {
         assert(s[i] >= '0' && s[i] <= '9');
         s_copy[i] = s[i] - '0';

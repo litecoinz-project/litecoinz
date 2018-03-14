@@ -25,8 +25,8 @@ namespace libsnark {
 /**
  * Mnemonic typedefs.
  */
-typedef uint64_t var_index_t;
-typedef int64_t integer_coeff_t;
+typedef size_t var_index_t;
+typedef long integer_coeff_t;
 
 /**
  * Forward declaration.
@@ -43,7 +43,7 @@ class linear_combination;
 /********************************* Variable **********************************/
 
 /**
- * A variable represents a formal expresison of the form "x_{index}".
+ * A variable represents a formal expression of the form "x_{index}".
  */
 template<typename FieldT>
 class variable {
@@ -179,10 +179,10 @@ public:
 
     bool operator==(const linear_combination<FieldT> &other) const;
 
-    bool is_valid(const uint64_t num_variables) const;
+    bool is_valid(const size_t num_variables) const;
 
-    void print(const std::map<uint64_t, std::string> &variable_annotations = std::map<uint64_t, std::string>()) const;
-    void print_with_assignment(const std::vector<FieldT> &full_assignment, const std::map<uint64_t, std::string> &variable_annotations = std::map<uint64_t, std::string>()) const;
+    void print(const std::map<size_t, std::string> &variable_annotations = std::map<size_t, std::string>()) const;
+    void print_with_assignment(const std::vector<FieldT> &full_assignment, const std::map<size_t, std::string> &variable_annotations = std::map<size_t, std::string>()) const;
 
     friend std::ostream& operator<< <FieldT>(std::ostream &out, const linear_combination<FieldT> &lc);
     friend std::istream& operator>> <FieldT>(std::istream &in, linear_combination<FieldT> &lc);

@@ -141,7 +141,7 @@ ifeq ($(PROFILE_OP_COUNTS),1)
 endif
 
 ifeq ($(STATIC),1)
-	CXXFLAGS += -static -DSTATIC
+	CXXFLAGS += -DSTATIC
 else
 	CXXFLAGS += -fPIC
 endif

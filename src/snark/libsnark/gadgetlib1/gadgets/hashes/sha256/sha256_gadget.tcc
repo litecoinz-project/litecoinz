@@ -42,7 +42,7 @@ sha256_compression_function_gadget<FieldT>::sha256_compression_function_gadget(p
     round_h.push_back(pb_linear_combination_array<FieldT>(prev_output.rbegin() + 0*32, prev_output.rbegin() + 1*32));
 
     /* do the rounds */
-    for (uint64_t i = 0; i < 64; ++i)
+    for (size_t i = 0; i < 64; ++i)
     {
         round_h.push_back(round_g[i]);
         round_g.push_back(round_f[i]);
@@ -69,7 +69,7 @@ sha256_compression_function_gadget<FieldT>::sha256_compression_function_gadget(p
     /* finalize */
     unreduced_output.allocate(pb, 8, FMT(this->annotation_prefix, " unreduced_output"));
     reduced_output.allocate(pb, 8, FMT(this->annotation_prefix, " reduced_output"));
-    for (uint64_t i = 0; i < 8; ++i)
+    for (size_t i = 0; i < 8; ++i)
     {
         reduce_output.push_back(lastbits_gadget<FieldT>(pb,
                                                         unreduced_output[i],
@@ -84,12 +84,12 @@ template<typename FieldT>
 void sha256_compression_function_gadget<FieldT>::generate_r1cs_constraints()
 {
     message_schedule->generate_r1cs_constraints();
-    for (uint64_t i = 0; i < 64; ++i)
+    for (size_t i = 0; i < 64; ++i)
     {
         round_functions[i].generate_r1cs_constraints();
     }
 
-    for (uint64_t i = 0; i < 4; ++i)
+    for (size_t i = 0; i < 4; ++i)
     {
         this->pb.add_r1cs_constraint(r1cs_constraint<FieldT>(1,
                                                              round_functions[3-i].packed_d + round_functions[63-i].packed_new_a,
@@ -102,7 +102,7 @@ void sha256_compression_function_gadget<FieldT>::generate_r1cs_constraints()
             FMT(this->annotation_prefix, " unreduced_output_%zu", 4+i));
     }
 
-    for (uint64_t i = 0; i < 8; ++i)
+    for (size_t i = 0; i < 8; ++i)
     {
         reduce_output[i].generate_r1cs_constraints();
     }
@@ -115,32 +115,32 @@ void sha256_compression_function_gadget<FieldT>::generate_r1cs_witness()
 
 #ifdef DEBUG
     printf("Input:\n");
-    for (uint64_t j = 0; j < 16; ++j)
+    for (size_t j = 0; j < 16; ++j)
     {
         printf("%lx ", this->pb.val(packed_W[j]).as_ulong());
     }
     printf("\n");
 #endif
 
-    for (uint64_t i = 0; i < 64; ++i)
+    for (size_t i = 0; i < 64; ++i)
     {
         round_functions[i].generate_r1cs_witness();
     }
 
-    for (uint64_t i = 0; i < 4; ++i)
+    for (size_t i = 0; i < 4; ++i)
     {
         this->pb.val(unreduced_output[i]) = this->pb.val(round_functions[3-i].packed_d) + this->pb.val(round_functions[63-i].packed_new_a);
         this->pb.val(unreduced_output[4+i]) = this->pb.val(round_functions[3-i].packed_h) + this->pb.val(round_functions[63-i].packed_new_e);
     }
 
-    for (uint64_t i = 0; i < 8; ++i)
+    for (size_t i = 0; i < 8; ++i)
     {
         reduce_output[i].generate_r1cs_witness();
     }
 
 #ifdef DEBUG
     printf("Output:\n");
-    for (uint64_t j = 0; j < 8; ++j)
+    for (size_t j = 0; j < 8; ++j)
     {
         printf("%lx ", this->pb.val(reduced_output[j]).as_ulong());
     }
@@ -167,7 +167,7 @@ sha256_two_to_one_hash_gadget<FieldT>::sha256_two_to_one_hash_gadget(protoboard<
 
 template<typename FieldT>
 sha256_two_to_one_hash_gadget<FieldT>::sha256_two_to_one_hash_gadget(protoboard<FieldT> &pb,
-                                                                     const uint64_t block_length,
+                                                                     const size_t block_length,
                                                                      const block_variable<FieldT> &input_block,
                                                                      const digest_variable<FieldT> &output,
                                                                      const std::string &annotation_prefix) :
@@ -192,13 +192,13 @@ void sha256_two_to_one_hash_gadget<FieldT>::generate_r1cs_witness()
 }
 
 template<typename FieldT>
-uint64_t sha256_two_to_one_hash_gadget<FieldT>::get_block_len()
+size_t sha256_two_to_one_hash_gadget<FieldT>::get_block_len()
 {
     return SHA256_block_size;
 }
 
 template<typename FieldT>
-uint64_t sha256_two_to_one_hash_gadget<FieldT>::get_digest_len()
+size_t sha256_two_to_one_hash_gadget<FieldT>::get_digest_len()
 {
     return SHA256_digest_size;
 }
@@ -219,7 +219,7 @@ bit_vector sha256_two_to_one_hash_gadget<FieldT>::get_hash(const bit_vector &inp
 }
 
 template<typename FieldT>
-uint64_t sha256_two_to_one_hash_gadget<FieldT>::expected_constraints(const bool ensure_output_bitness)
+size_t sha256_two_to_one_hash_gadget<FieldT>::expected_constraints(const bool ensure_output_bitness)
 {
     UNUSED(ensure_output_bitness);
     return 27280; /* hardcoded for now */

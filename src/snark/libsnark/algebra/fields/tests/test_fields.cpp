@@ -53,7 +53,7 @@ void test_field()
 template<typename FieldT>
 void test_sqrt()
 {
-    for (uint64_t i = 0; i < 100; ++i)
+    for (size_t i = 0; i < 100; ++i)
     {
         FieldT a = FieldT::random_element();
         FieldT asq = a.squared();
@@ -76,7 +76,7 @@ void test_Frobenius()
     FieldT a = FieldT::random_element();
     EXPECT_EQ(a.Frobenius_map(0), a);
     FieldT a_q = a ^ FieldT::base_field_char();
-    for (uint64_t power = 1; power < 10; ++power)
+    for (size_t power = 1; power < 10; ++power)
     {
         const FieldT a_qi = a.Frobenius_map(power);
         EXPECT_EQ(a_qi, a_q);
@@ -116,7 +116,7 @@ template<typename Fp4T>
 void test_Fp4_tom_cook()
 {
     typedef typename Fp4T::my_Fp FieldT;
-    for (uint64_t i = 0; i < 100; ++i)
+    for (size_t i = 0; i < 100; ++i)
     {
         const Fp4T a = Fp4T::random_element();
         const Fp4T b = Fp4T::random_element();

@@ -7,7 +7,7 @@
  a choice of domain S with size ~m that has been selected so to optimize
  - computations of Lagrange polynomials, and
  - FFT/iFFT computations.
- An evaluation domain also provides other other functions, e.g., accessing
+ An evaluation domain also provides other functions, e.g., accessing
  individual elements in S or evaluating its vanishing polynomial.
 
  The descriptions below make use of the definition of a *Lagrange polynomial*,
@@ -37,19 +37,19 @@ template<typename FieldT>
 class evaluation_domain {
 public:
 
-    const uint64_t m;
+    const size_t m;
 
     /**
      * Construct an evaluation domain S of size m, if possible.
      *
      * (See the function get_evaluation_domain below.)
      */
-    evaluation_domain(const uint64_t m) : m(m) {};
+    evaluation_domain(const size_t m) : m(m) {};
 
     /**
      * Get the idx-th element in S.
      */
-    virtual FieldT get_element(const uint64_t idx) = 0;
+    virtual FieldT get_element(const size_t idx) = 0;
 
     /**
      * Compute the FFT, over the domain S, of the vector a.
@@ -103,7 +103,7 @@ public:
  * The function chooses from different supported domains, depending on min_size.
  */
 template<typename FieldT>
-std::shared_ptr<evaluation_domain<FieldT> > get_evaluation_domain(const uint64_t min_size);
+std::shared_ptr<evaluation_domain<FieldT> > get_evaluation_domain(const size_t min_size);
 
 /**
  * Naive evaluation of a *single* Lagrange polynomial, used for testing purposes.
@@ -111,12 +111,12 @@ std::shared_ptr<evaluation_domain<FieldT> > get_evaluation_domain(const uint64_t
  * The inputs are:
  * - an integer m
  * - a domain S = (a_{0},...,a_{m-1}) of size m
- * - a field element element t
+ * - a field element t
  * - an index idx in {0,...,m-1}
  * The output is the polynomial L_{idx,S}(z) evaluated at z = t.
  */
 template<typename FieldT>
-FieldT lagrange_eval(const uint64_t m, const std::vector<FieldT> &domain, const FieldT &t, const uint64_t idx);
+FieldT lagrange_eval(const size_t m, const std::vector<FieldT> &domain, const FieldT &t, const size_t idx);
 
 } // libsnark
 

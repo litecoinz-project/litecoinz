@@ -22,8 +22,8 @@
 namespace libsnark {
 
 template<typename FieldT>
-r1cs_example<FieldT> generate_r1cs_example_with_field_input(const uint64_t num_constraints,
-                                                            const uint64_t num_inputs)
+r1cs_example<FieldT> generate_r1cs_example_with_field_input(const size_t num_constraints,
+                                                            const size_t num_inputs)
 {
     enter_block("Call to generate_r1cs_example_with_field_input");
 
@@ -39,7 +39,7 @@ r1cs_example<FieldT> generate_r1cs_example_with_field_input(const uint64_t num_c
     full_variable_assignment.push_back(a);
     full_variable_assignment.push_back(b);
 
-    for (uint64_t i = 0; i < num_constraints-1; ++i)
+    for (size_t i = 0; i < num_constraints-1; ++i)
     {
         linear_combination<FieldT> A, B, C;
 
@@ -70,7 +70,7 @@ r1cs_example<FieldT> generate_r1cs_example_with_field_input(const uint64_t num_c
 
     linear_combination<FieldT> A, B, C;
     FieldT fin = FieldT::zero();
-    for (uint64_t i = 1; i < cs.num_variables(); ++i)
+    for (size_t i = 1; i < cs.num_variables(); ++i)
     {
         A.add_term(i, 1);
         B.add_term(i, 1);
@@ -97,8 +97,8 @@ r1cs_example<FieldT> generate_r1cs_example_with_field_input(const uint64_t num_c
 }
 
 template<typename FieldT>
-r1cs_example<FieldT> generate_r1cs_example_with_binary_input(const uint64_t num_constraints,
-                                                             const uint64_t num_inputs)
+r1cs_example<FieldT> generate_r1cs_example_with_binary_input(const size_t num_constraints,
+                                                             const size_t num_inputs)
 {
     enter_block("Call to generate_r1cs_example_with_binary_input");
 
@@ -109,17 +109,17 @@ r1cs_example<FieldT> generate_r1cs_example_with_binary_input(const uint64_t num_
     cs.auxiliary_input_size = num_constraints; /* we will add one auxiliary variable per constraint */
 
     r1cs_variable_assignment<FieldT> full_variable_assignment;
-    for (uint64_t i = 0; i < num_inputs; ++i)
+    for (size_t i = 0; i < num_inputs; ++i)
     {
         full_variable_assignment.push_back(FieldT(std::rand() % 2));
     }
 
-    uint64_t lastvar = num_inputs-1;
-    for (uint64_t i = 0; i < num_constraints; ++i)
+    size_t lastvar = num_inputs-1;
+    for (size_t i = 0; i < num_constraints; ++i)
     {
         ++lastvar;
-        const uint64_t u = (i == 0 ? std::rand() % num_inputs : std::rand() % i);
-        const uint64_t v = (i == 0 ? std::rand() % num_inputs : std::rand() % i);
+        const size_t u = (i == 0 ? std::rand() % num_inputs : std::rand() % i);
+        const size_t v = (i == 0 ? std::rand() % num_inputs : std::rand() % i);
 
         /* chose two random bits and XOR them together:
            res = u + v - 2 * u * v

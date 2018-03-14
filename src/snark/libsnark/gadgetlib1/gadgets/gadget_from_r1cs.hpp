@@ -24,7 +24,7 @@ class gadget_from_r1cs : public gadget<FieldT> {
 private:
     const std::vector<pb_variable_array<FieldT> > vars;
     const r1cs_constraint_system<FieldT> cs;
-    std::map<uint64_t, uint64_t> cs_to_vars;
+    std::map<size_t, size_t> cs_to_vars;
 
 public:
 

@@ -19,10 +19,10 @@
 namespace libsnark {
 
 template<typename FieldT>
-basic_radix2_domain<FieldT>::basic_radix2_domain(const uint64_t m) : evaluation_domain<FieldT>(m)
+basic_radix2_domain<FieldT>::basic_radix2_domain(const size_t m) : evaluation_domain<FieldT>(m)
 {
     assert(m > 1);
-    const uint64_t logm = log2(m);
+    const size_t logm = log2(m);
     assert(logm <= (FieldT::s));
 
     omega = get_root_of_unity<FieldT>(m);
@@ -45,7 +45,7 @@ void basic_radix2_domain<FieldT>::iFFT(std::vector<FieldT> &a)
     _basic_radix2_FFT(a, omega.inverse());
 
     const FieldT sconst = FieldT(a.size()).inverse();
-    for (uint64_t i = 0; i < a.size(); ++i)
+    for (size_t i = 0; i < a.size(); ++i)
     {
         a[i] *= sconst;
     }
@@ -77,7 +77,7 @@ std::vector<FieldT> basic_radix2_domain<FieldT>::lagrange_coeffs(const FieldT &t
 }
 
 template<typename FieldT>
-FieldT basic_radix2_domain<FieldT>::get_element(const uint64_t idx)
+FieldT basic_radix2_domain<FieldT>::get_element(const size_t idx)
 {
     return omega^idx;
 }
@@ -101,7 +101,7 @@ void basic_radix2_domain<FieldT>::divide_by_Z_on_coset(std::vector<FieldT> &P)
 {
     const FieldT coset = FieldT::multiplicative_generator;
     const FieldT Z_inverse_at_coset = this->compute_Z(coset).inverse();
-    for (uint64_t i = 0; i < this->m; ++i)
+    for (size_t i = 0; i < this->m; ++i)
     {
         P[i] *= Z_inverse_at_coset;
     }

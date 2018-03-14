@@ -12,7 +12,7 @@ namespace libsnark {
 
 template<typename T1, typename T2, mp_size_t n>
 knowledge_commitment<T1,T2> opt_window_wnaf_exp(const knowledge_commitment<T1,T2> &base,
-                                                const bigint<n> &scalar, const uint64_t scalar_bits)
+                                                const bigint<n> &scalar, const size_t scalar_bits)
 {
     return knowledge_commitment<T1,T2>(opt_window_wnaf_exp(base.g, scalar, scalar_bits),
                                        opt_window_wnaf_exp(base.h, scalar, scalar_bits));
@@ -20,16 +20,16 @@ knowledge_commitment<T1,T2> opt_window_wnaf_exp(const knowledge_commitment<T1,T2
 
 template<typename T1, typename T2, typename FieldT>
 knowledge_commitment<T1, T2> kc_multi_exp_with_mixed_addition(const knowledge_commitment_vector<T1, T2> &vec,
-                                                                const uint64_t min_idx,
-                                                                const uint64_t max_idx,
+                                                                const size_t min_idx,
+                                                                const size_t max_idx,
                                                                 typename std::vector<FieldT>::const_iterator scalar_start,
                                                                 typename std::vector<FieldT>::const_iterator scalar_end,
-                                                                const uint64_t chunks,
+                                                                const size_t chunks,
                                                                 const bool use_multiexp)
 {
     enter_block("Process scalar vector");
     auto index_it = std::lower_bound(vec.indices.begin(), vec.indices.end(), min_idx);
-    const uint64_t offset = index_it - vec.indices.begin();
+    const size_t offset = index_it - vec.indices.begin();
 
     auto value_it = vec.values.begin() + offset;
 
@@ -41,15 +41,15 @@ knowledge_commitment<T1, T2> kc_multi_exp_with_mixed_addition(const knowledge_co
 
     knowledge_commitment<T1, T2> acc = knowledge_commitment<T1, T2>::zero();
 
-    uint64_t num_skip = 0;
-    uint64_t num_add = 0;
-    uint64_t num_other = 0;
+    size_t num_skip = 0;
+    size_t num_add = 0;
+    size_t num_other = 0;
 
-    const uint64_t scalar_length = std::distance(scalar_start, scalar_end);
+    const size_t scalar_length = std::distance(scalar_start, scalar_end);
 
     while (index_it != vec.indices.end() && *index_it < max_idx)
     {
-        const uint64_t scalar_position = (*index_it) - min_idx;
+        const size_t scalar_position = (*index_it) - min_idx;
         assert(scalar_position < scalar_length);
 
         const FieldT scalar = *(scalar_start + scalar_position);
@@ -97,7 +97,7 @@ void kc_batch_to_special(std::vector<knowledge_commitment<T1, T2> > &vec)
     std::vector<T1> g_vec;
     g_vec.reserve(vec.size());
 
-    for (uint64_t i = 0; i < vec.size(); ++i)
+    for (size_t i = 0; i < vec.size(); ++i)
     {
         if (!vec[i].g.is_zero())
         {
@@ -110,7 +110,7 @@ void kc_batch_to_special(std::vector<knowledge_commitment<T1, T2> > &vec)
     T1 T1_zero_special = T1::zero();
     T1_zero_special.to_special();
 
-    for (uint64_t i = 0; i < vec.size(); ++i)
+    for (size_t i = 0; i < vec.size(); ++i)
     {
         if (!vec[i].g.is_zero())
         {
@@ -128,7 +128,7 @@ void kc_batch_to_special(std::vector<knowledge_commitment<T1, T2> > &vec)
     std::vector<T2> h_vec;
     h_vec.reserve(vec.size());
 
-    for (uint64_t i = 0; i < vec.size(); ++i)
+    for (size_t i = 0; i < vec.size(); ++i)
     {
         if (!vec[i].h.is_zero())
         {
@@ -141,7 +141,7 @@ void kc_batch_to_special(std::vector<knowledge_commitment<T1, T2> > &vec)
     T2 T2_zero_special = T2::zero();
     T2_zero_special.to_special();
 
-    for (uint64_t i = 0; i < vec.size(); ++i)
+    for (size_t i = 0; i < vec.size(); ++i)
     {
         if (!vec[i].h.is_zero())
         {
@@ -160,24 +160,24 @@ void kc_batch_to_special(std::vector<knowledge_commitment<T1, T2> > &vec)
 }
 
 template<typename T1, typename T2, typename FieldT>
-knowledge_commitment_vector<T1, T2> kc_batch_exp_internal(const uint64_t scalar_size,
-                                                          const uint64_t T1_window,
-                                                          const uint64_t T2_window,
+knowledge_commitment_vector<T1, T2> kc_batch_exp_internal(const size_t scalar_size,
+                                                          const size_t T1_window,
+                                                          const size_t T2_window,
                                                           const window_table<T1> &T1_table,
                                                           const window_table<T2> &T2_table,
                                                           const FieldT &T1_coeff,
                                                           const FieldT &T2_coeff,
                                                           const std::vector<FieldT> &v,
-                                                          const uint64_t start_pos,
-                                                          const uint64_t end_pos,
-                                                          const uint64_t expected_size)
+                                                          const size_t start_pos,
+                                                          const size_t end_pos,
+                                                          const size_t expected_size)
 {
     knowledge_commitment_vector<T1, T2> res;
 
     res.values.reserve(expected_size);
     res.indices.reserve(expected_size);
 
-    for (uint64_t pos = start_pos; pos != end_pos; ++pos)
+    for (size_t pos = start_pos; pos != end_pos; ++pos)
     {
         if (!v[pos].is_zero())
         {
@@ -191,26 +191,26 @@ knowledge_commitment_vector<T1, T2> kc_batch_exp_internal(const uint64_t scalar_
 }
 
 template<typename T1, typename T2, typename FieldT>
-knowledge_commitment_vector<T1, T2> kc_batch_exp(const uint64_t scalar_size,
-                                                 const uint64_t T1_window,
-                                                 const uint64_t T2_window,
+knowledge_commitment_vector<T1, T2> kc_batch_exp(const size_t scalar_size,
+                                                 const size_t T1_window,
+                                                 const size_t T2_window,
                                                  const window_table<T1> &T1_table,
                                                  const window_table<T2> &T2_table,
                                                  const FieldT &T1_coeff,
                                                  const FieldT &T2_coeff,
                                                  const std::vector<FieldT> &v,
-                                                 const uint64_t suggested_num_chunks)
+                                                 const size_t suggested_num_chunks)
 {
     knowledge_commitment_vector<T1, T2> res;
     res.domain_size_ = v.size();
 
-    uint64_t nonzero = 0;
-    for (uint64_t i = 0; i < v.size(); ++i)
+    size_t nonzero = 0;
+    for (size_t i = 0; i < v.size(); ++i)
     {
         nonzero += (v[i].is_zero() ? 0 : 1);
     }
 
-    const uint64_t num_chunks = std::max((uint64_t)1, std::min(nonzero, suggested_num_chunks));
+    const size_t num_chunks = std::max((size_t)1, std::min(nonzero, suggested_num_chunks));
 
     if (!inhibit_profiling_info)
     {
@@ -218,17 +218,17 @@ knowledge_commitment_vector<T1, T2> kc_batch_exp(const uint64_t scalar_size,
     }
 
     std::vector<knowledge_commitment_vector<T1, T2> > tmp(num_chunks);
-    std::vector<uint64_t> chunk_pos(num_chunks+1);
+    std::vector<size_t> chunk_pos(num_chunks+1);
 
-    const uint64_t chunk_size = nonzero / num_chunks;
-    const uint64_t last_chunk = nonzero - chunk_size * (num_chunks - 1);
+    const size_t chunk_size = nonzero / num_chunks;
+    const size_t last_chunk = nonzero - chunk_size * (num_chunks - 1);
 
     chunk_pos[0] = 0;
 
-    uint64_t cnt = 0;
-    uint64_t chunkno = 1;
+    size_t cnt = 0;
+    size_t chunkno = 1;
 
-    for (uint64_t i = 0; i < v.size(); ++i)
+    for (size_t i = 0; i < v.size(); ++i)
     {
         cnt += (v[i].is_zero() ? 0 : 1);
         if (cnt == chunk_size && chunkno < num_chunks)
@@ -244,7 +244,7 @@ knowledge_commitment_vector<T1, T2> kc_batch_exp(const uint64_t scalar_size,
 #ifdef MULTICORE
 #pragma omp parallel for
 #endif
-    for (uint64_t i = 0; i < num_chunks; ++i)
+    for (size_t i = 0; i < num_chunks; ++i)
     {
         tmp[i] = kc_batch_exp_internal<T1, T2, FieldT>(scalar_size, T1_window, T2_window, T1_table, T2_table, T1_coeff, T2_coeff, v,
                                                        chunk_pos[i], chunk_pos[i+1], i == num_chunks - 1 ? last_chunk : chunk_size);
@@ -260,7 +260,7 @@ knowledge_commitment_vector<T1, T2> kc_batch_exp(const uint64_t scalar_size,
     }
     else
     {
-        for (uint64_t i = 0; i < num_chunks; ++i)
+        for (size_t i = 0; i < num_chunks; ++i)
         {
             res.values.insert(res.values.end(), tmp[i].values.begin(), tmp[i].values.end());
             res.indices.insert(res.indices.end(), tmp[i].indices.begin(), tmp[i].indices.end());

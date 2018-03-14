@@ -31,25 +31,6 @@
 using namespace std;
 using namespace libsnark;
 
-template<>
-void expect_deser_same(const ZCTestingIncrementalWitness& expected)
-{
-    // Cannot check this; IncrementalWitness cannot be
-    // deserialized because it can only be constructed by
-    // IncrementalMerkleTree, and it does not yet have a
-    // canonical serialized representation.
-}
-
-template<>
-void expect_deser_same(const libzcash::MerklePath& expected)
-{
-    // This deserialization check is pointless for MerklePath,
-    // since we only serialize it to check it against test
-    // vectors. See `expect_test_vector` for that. Also,
-    // it doesn't seem that vector<bool> can be properly
-    // deserialized by Bitcoin's serialization code.
-}
-
 template<typename A, typename B, typename C>
 void expect_ser_test_vector(B& b, const C& c, const A& tree) {
     expect_test_vector<B, C>(b, c);
