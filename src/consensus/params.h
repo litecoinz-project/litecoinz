@@ -24,6 +24,8 @@ struct Params {
     int nMajorityEnforceBlockUpgrade;
     int nMajorityRejectBlockOutdated;
     int nMajorityWindow;
+    /** Block height at which Equihash<144,5> becomes active */
+    int nEquihashForkHeight;
     /** Proof of work parameters */
     uint256 powLimit;
     int64_t nPowAveragingWindow;

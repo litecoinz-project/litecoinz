@@ -202,10 +202,14 @@ UniValue generate(const UniValue& params, bool fHelp)
     }
     unsigned int nExtraNonce = 0;
     UniValue blockHashes(UniValue::VARR);
-    unsigned int n = Params().EquihashN();
-    unsigned int k = Params().EquihashK();
+    unsigned int n;
+    unsigned int k;
+
     while (nHeight < nHeightEnd)
     {
+        n = Params().EquihashN(nHeight + 1);
+        k = Params().EquihashK(nHeight + 1);
+
 #ifdef ENABLE_WALLET
         std::unique_ptr<CBlockTemplate> pblocktemplate(CreateNewBlockWithKey(reservekey));
 #else
@@ -481,6 +485,8 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
             "  \"curtime\" : ttt,                  (numeric) current timestamp in seconds since epoch (Jan 1 1970 GMT)\n"
             "  \"bits\" : \"xxx\",                 (string) compressed target of next block\n"
             "  \"height\" : n                      (numeric) The height of the next block\n"
+            "  \"equihashn\" : n                   (numeric) Equihash N\n"
+            "  \"equihashk\" : n                   (numeric) Equihash K\n"
             "}\n"
 
             "\nExamples:\n"
@@ -720,7 +726,10 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
     result.push_back(Pair("sizelimit", (int64_t)MAX_BLOCK_SIZE));
     result.push_back(Pair("curtime", pblock->GetBlockTime()));
     result.push_back(Pair("bits", strprintf("%08x", pblock->nBits)));
-    result.push_back(Pair("height", (int64_t)(pindexPrev->nHeight+1)));
+    int height = pindexPrev->nHeight + 1;
+    result.push_back(Pair("height", (int64_t)height));
+    result.push_back(Pair("equihashn", (int64_t)(Params().EquihashN(height))));
+    result.push_back(Pair("equihashk", (int64_t)(Params().EquihashK(height))));
 
     return result;
 }

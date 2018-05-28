@@ -14,6 +14,7 @@
 #include "chainparams.h"
 #include "checkpoints.h"
 #include "checkqueue.h"
+#include "consensus/params.h"
 #include "consensus/validation.h"
 #include "deprecation.h"
 #include "init.h"
@@ -2987,9 +2988,19 @@ bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state, bool f
                          REJECT_INVALID, "version-too-low");
 
     // Check Equihash solution is valid
-    if (fCheckPOW && !CheckEquihashSolution(&block, Params()))
-        return state.DoS(100, error("CheckBlockHeader(): Equihash solution invalid"),
-                         REJECT_INVALID, "invalid-solution");
+    if (fCheckPOW) {
+        int oldSize = Params().EquihashSolutionWidth(Params().EquihashForkHeight());
+        int newSize = Params().EquihashSolutionWidth(Params().EquihashForkHeight() - 1);
+
+        if ((block.nSolution.size() != oldSize) && (block.nSolution.size() != newSize))
+            return state.DoS(100, error("CheckBlockHeader(): Equihash solution has invalid size have %d need [%d, %d]",
+                                        block.nSolution.size(), oldSize, newSize),
+                             REJECT_INVALID, "invalid-solution-size");
+
+        if (!CheckEquihashSolution(&block, Params()))
+            return state.DoS(100, error("CheckBlockHeader(): Equihash solution invalid"),
+                             REJECT_INVALID, "invalid-solution");
+    }
 
     // Check proof of work matches claimed amount
     if (fCheckPOW && !CheckProofOfWork(block.GetHash(), block.nBits, Params().GetConsensus()))
@@ -3087,6 +3098,24 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
     if (block.GetBlockTime() <= pindexPrev->GetMedianTimePast())
         return state.Invalid(error("%s: block's timestamp is too early", __func__),
                              REJECT_INVALID, "time-too-old");
+
+    // If the equihash solution is set, check the size is correct for given parameters.
+    size_t nSolSize = block.nSolution.size();
+    if (nSolSize > 0)
+    {
+        int n = chainParams.EquihashN(nHeight);
+        int k = chainParams.EquihashK(nHeight);
+
+        unsigned int sol_size = chainParams.EquihashSolutionWidth(nHeight);
+
+        if (nSolSize != sol_size)
+        {
+            return state.DoS(100, error("%s: incorrect equihash solution size %d for block %d, expected size %d for parameters (%d, %d)",
+                                        __func__, nSolSize, nHeight, sol_size, n, k),
+                                        REJECT_INVALID,
+                                        "bad-equihash-solution-size");
+        }
+    }
 
     if (fCheckpointsEnabled)
     {

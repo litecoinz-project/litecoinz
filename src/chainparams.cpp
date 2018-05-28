@@ -88,6 +88,7 @@ public:
         consensus.nPowMaxAdjustDown = 32; // 32% adjustment down
         consensus.nPowMaxAdjustUp = 16; // 16% adjustment up
         consensus.nPowTargetSpacing = 2.5 * 60;
+        consensus.nEquihashForkHeight = 95000;
 
         pchMessageStart[0] = 0xd8;
         pchMessageStart[1] = 0xcf;
@@ -99,9 +100,13 @@ public:
         nMaxTipAge = 24 * 60 * 60;
         nPruneAfterHeight = 100000;
         const size_t N = 200, K = 9;
+        const size_t N2 = 192, K2 = 7;
         BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N, K));
+        BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N2, K2));
         nEquihashN = N;
         nEquihashK = K;
+        nEquihashN2 = N2;
+        nEquihashK2 = K2;
 
         genesis = CreateGenesisBlock(
             1512832667,
@@ -181,6 +186,7 @@ public:
         consensus.nPowMaxAdjustDown = 32; // 32% adjustment down
         consensus.nPowMaxAdjustUp = 16; // 16% adjustment up
         consensus.nPowTargetSpacing = 2.5 * 60;
+        consensus.nEquihashForkHeight = 3085;
 
         pchMessageStart[0] = 0xfe;
         pchMessageStart[1] = 0x90;
@@ -192,9 +198,14 @@ public:
         nMaxTipAge = 24 * 60 * 60;
         nPruneAfterHeight = 1000;
         const size_t N = 200, K = 9;
+        const size_t N2 = 192, K2 = 7;
+
         BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N, K));
+        BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N2, K2));
         nEquihashN = N;
         nEquihashK = K;
+        nEquihashN2 = N2;
+        nEquihashK2 = K2;
 
         genesis = CreateGenesisBlock(
             1511954736,
@@ -265,6 +276,7 @@ public:
         consensus.nPowMaxAdjustDown = 0; // Turn off adjustment down
         consensus.nPowMaxAdjustUp = 0; // Turn off adjustment up
         consensus.nPowTargetSpacing = 2.5 * 60;
+        consensus.nEquihashForkHeight = 1;
 
         pchMessageStart[0] = 0xea;
         pchMessageStart[1] = 0x8c;
@@ -275,9 +287,13 @@ public:
         nMaxTipAge = 24 * 60 * 60;
         nPruneAfterHeight = 1000;
         const size_t N = 48, K = 5;
+        const size_t N2 = 192, K2 = 7;
         BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N, K));
+        BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N2, K2));
         nEquihashN = N;
         nEquihashK = K;
+        nEquihashN2 = N2;
+        nEquihashK2 = K2;
 
         genesis = CreateGenesisBlock(
             1511954736,
@@ -342,4 +358,9 @@ void SelectParams(const std::string& network)
 {
     SelectBaseParams(network);
     pCurrentParams = &Params(network);
+}
+
+unsigned int CChainParams::EquihashSolutionWidth(int height) const
+{
+    return EhSolutionWidth(EquihashN(height), EquihashK(height));
 }

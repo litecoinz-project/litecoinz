@@ -14,14 +14,14 @@
 typedef uint32_t u32;
 typedef unsigned char uchar;
 
-// algorithm parameters, prefixed with W (for Wagner) to reduce include file conflicts
+// algorithm parameters, prefixed with W to reduce include file conflicts
 
 #ifndef WN
-#define WN	200
+#define WN	192
 #endif
 
 #ifndef WK
-#define WK	9
+#define WK	7
 #endif
 
 #define NDIGITS		(WK+1)

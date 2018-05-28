@@ -25,6 +25,12 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
     if (pindexLast == NULL)
         return nProofOfWorkLimit;
 
+    // Reset the difficulty after the algo fork
+    if ((pindexLast->nHeight >= params.nEquihashForkHeight) && (pindexLast->nHeight < params.nEquihashForkHeight + params.nPowAveragingWindow)) {
+        LogPrint("pow", "Reset the difficulty for the algorithm change: %d\n", nProofOfWorkLimit);
+        return nProofOfWorkLimit;
+    }
+
     // Find the first block in the averaging interval
     const CBlockIndex* pindexFirst = pindexLast;
     arith_uint256 bnTot {0};
@@ -80,8 +86,33 @@ unsigned int CalculateNextWorkRequired(arith_uint256 bnAvg,
 
 bool CheckEquihashSolution(const CBlockHeader *pblock, const CChainParams& params)
 {
-    unsigned int n = params.EquihashN();
-    unsigned int k = params.EquihashK();
+    // Derive n, k from the solution size as the block header does not specify parameters used.
+    // In the future, we could pass in the block height and call EquihashN() and EquihashK()
+    // to perform a contextual check against the parameters in use at a given block height.
+    unsigned int n, k;
+    size_t nSolSize = pblock->nSolution.size();
+
+    // Equihash solution size = (pow(2, k) * ((n/(k+1))+1)) / 8
+    if (nSolSize == 1344) { // mainnet and testnet genesis
+        n = 200;
+        k = 9;
+    } else if (nSolSize == 36) { // regtest genesis
+        n = 48;
+        k = 5;
+    } else if (nSolSize == 400) {
+        n = 192;
+        k = 7;
+    } else if (nSolSize == 100) {
+        n = 144;
+        k = 5;
+    } else if (nSolSize == 68) {
+        n = 96;
+        k = 5;
+    } else {
+        return error("CheckEquihashSolution: Unsupported solution size of %d", nSolSize);
+    }
+
+    LogPrint("pow", "CheckEquihashSolution: selected n, k : %d, %d \n", n, k);
 
     // Hash state
     crypto_generichash_blake2b_state state;

@@ -78,8 +78,24 @@ public:
     bool RequireStandard() const { return fRequireStandard; }
     int64_t MaxTipAge() const { return nMaxTipAge; }
     int64_t PruneAfterHeight() const { return nPruneAfterHeight; }
-    unsigned int EquihashN() const { return nEquihashN; }
-    unsigned int EquihashK() const { return nEquihashK; }
+    unsigned int EquihashN(int height = 0) const
+    {
+        if(height < consensus.nEquihashForkHeight) {
+            return nEquihashN;
+        } else {
+            return nEquihashN2;
+        }
+    }
+    unsigned int EquihashK(int height = 0) const
+    {
+        if(height < consensus.nEquihashForkHeight) {
+            return nEquihashK;
+        } else {
+            return nEquihashK2;
+        }
+    }
+    unsigned int EquihashSolutionWidth(int height) const;
+
     std::string CurrencyUnits() const { return strCurrencyUnits; }
     /** Make miner stop after a block is found. In RPC, don't return until nGenProcLimit blocks are generated */
     bool MineBlocksOnDemand() const { return fMineBlocksOnDemand; }
@@ -93,6 +109,8 @@ public:
     const CCheckpointData& Checkpoints() const { return checkpointData; }
     /** Enforce coinbase consensus rule in regtest mode */
     void SetRegTestCoinbaseMustBeProtected() { consensus.fCoinbaseMustBeProtected = true; }
+
+    uint64_t EquihashForkHeight() const { return consensus.nEquihashForkHeight; };
 protected:
     CChainParams() {}
 
@@ -105,6 +123,8 @@ protected:
     uint64_t nPruneAfterHeight = 0;
     unsigned int nEquihashN = 0;
     unsigned int nEquihashK = 0;
+    unsigned int nEquihashN2 = 0;
+    unsigned int nEquihashK2 = 0;
     std::vector<CDNSSeedData> vSeeds;
     std::vector<unsigned char> base58Prefixes[MAX_BASE58_TYPES];
     std::string strNetworkID;

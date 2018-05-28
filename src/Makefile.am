@@ -361,18 +361,7 @@ EQUIHASH_TROMP_SOURCES = \
   pow/tromp/equi.h \
   pow/tromp/osx_barrier.h
 
-EQUIHASH_TROMP_AVX2_SOURCES = \
-  pow/tromp/blake2-avx2/blake2b-common.h \
-  pow/tromp/blake2-avx2/blake2b-load-avx2-simple.h \
-  pow/tromp/blake2-avx2/blake2bip.c \
-  pow/tromp/blake2-avx2/blake2bip.h
-
-if USE_TROMP_AVX2
-crypto_libbitcoin_crypto_a_CPPFLAGS += -mavx2 -DEQUIHASH_TROMP_UNROLL
-crypto_libbitcoin_crypto_a_SOURCES += ${EQUIHASH_TROMP_AVX2_SOURCES}
-else
 crypto_libbitcoin_crypto_a_CPPFLAGS += -DEQUIHASH_TROMP_ATOMIC
-endif
 
 crypto_libbitcoin_crypto_a_SOURCES += \
   ${EQUIHASH_TROMP_SOURCES}
