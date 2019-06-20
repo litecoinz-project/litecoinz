@@ -1162,17 +1162,6 @@ AX_OPENMP(
    AC_DEFINE(HAVE_OPENMP, 0, [Define if OpenMP is enabled])
    AM_CONDITIONAL([HAVE_OPENMP], [false])])
 
-# Gitian uses a config.site that sets depends_prefix, and then sets --prefix=/
-# build.sh just uses --prefix
-if test x$depends_prefix != x; then
-  LIBSNARK_DEPINST="$depends_prefix"
-else
-  LIBSNARK_DEPINST="$prefix"
-fi
-
-# Set optimization flags for libsnark
-AX_GCC_ARCHFLAG([no], [LIBSNARK_OPTFLAGS="-O2 $ax_cv_gcc_archflag"], [LIBSNARK_OPTFLAGS="-O2"])
-
 LIBZCASH_LIBS="$GMP_LIBS $GMPXX_LIBS $BOOST_SYSTEM_LIB $CRYPTO_LIBS -lsodium $RUST_LIBS"
 
 AC_MSG_CHECKING([whether to build litecoinzd])
@@ -1368,8 +1357,6 @@ AC_SUBST(ZMQ_LIBS)
 AC_SUBST(GMP_LIBS)
 AC_SUBST(GMPXX_LIBS)
 AC_SUBST(LIBEQUIHASH_LIBS)
-AC_SUBST(LIBSNARK_DEPINST)
-AC_SUBST(LIBSNARK_OPTFLAGS)
 AC_SUBST(LIBZCASH_LIBS)
 AC_SUBST(PROTOBUF_LIBS)
 AC_SUBST(QR_LIBS)
