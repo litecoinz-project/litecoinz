@@ -80,7 +80,7 @@ enum {
 
     // NODE_BLOOM means the node is capable and willing to handle bloom-filtered connections.
     // Bitcoin Core nodes used to support this by default, without advertising this bit,
-    // but no longer do as of protocol version 70011 (= NO_BLOOM_VERSION). In Zcash, there
+    // but no longer do as of protocol version 70011 (= NO_BLOOM_VERSION). In LitecoinZ, there
     // is no NO_BLOOM_VERSION since the NODE_BLOOM bit was present at launch.
     NODE_BLOOM = (1 << 2),
 
