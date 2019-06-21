@@ -86,22 +86,6 @@ public:
     /** Policy: Filter transactions that do not match well-defined patterns */
     bool RequireStandard() const { return fRequireStandard; }
     int64_t PruneAfterHeight() const { return nPruneAfterHeight; }
-    unsigned int EquihashN(int height = 0) const
-    {
-        if(height < consensus.nEquihashForkHeight) {
-            return nEquihashN;
-        } else {
-            return nEquihashN2;
-        }
-    }
-    unsigned int EquihashK(int height = 0) const
-    {
-        if(height < consensus.nEquihashForkHeight) {
-            return nEquihashK;
-        } else {
-            return nEquihashK2;
-        }
-    }
     unsigned int EquihashSolutionWidth(int height) const;
 
     std::string CurrencyUnits() const { return strCurrencyUnits; }
@@ -119,8 +103,6 @@ public:
     const CCheckpointData& Checkpoints() const { return checkpointData; }
     /** Enforce coinbase consensus rule in regtest mode */
     void SetRegTestCoinbaseMustBeProtected() { consensus.fCoinbaseMustBeProtected = true; }
-
-    uint64_t EquihashForkHeight() const { return consensus.nEquihashForkHeight; };
 protected:
     CChainParams() {}
 
@@ -130,10 +112,6 @@ protected:
     std::vector<unsigned char> vAlertPubKey;
     int nDefaultPort = 0;
     uint64_t nPruneAfterHeight = 0;
-    unsigned int nEquihashN = 0;
-    unsigned int nEquihashK = 0;
-    unsigned int nEquihashN2 = 0;
-    unsigned int nEquihashK2 = 0;
     std::vector<CDNSSeedData> vSeeds;
     std::vector<unsigned char> base58Prefixes[MAX_BASE58_TYPES];
     std::string bech32HRPs[MAX_BECH32_TYPES];

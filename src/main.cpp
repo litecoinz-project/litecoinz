@@ -1755,7 +1755,7 @@ bool ReadBlockFromDisk(CBlock& block, const CDiskBlockPos& pos)
     }
 
     // Check the header
-    if (!(CheckEquihashSolution(&block, Params()) &&
+    if (!(CheckEquihashSolution(&block, Params().GetConsensus()) &&
           CheckProofOfWork(block.GetHash(), block.nBits, Params().GetConsensus())))
         return error("ReadBlockFromDisk: Errors in block header at %s", pos.ToString());
 
@@ -3637,15 +3637,15 @@ bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state, bool f
 
     // Check Equihash solution is valid
     if (fCheckPOW) {
-        int oldSize = Params().EquihashSolutionWidth(Params().EquihashForkHeight());
-        int newSize = Params().EquihashSolutionWidth(Params().EquihashForkHeight() - 1);
+        int oldSize = Params().EquihashSolutionWidth(Params().GetConsensus().EquihashForkHeight());
+        int newSize = Params().EquihashSolutionWidth(Params().GetConsensus().EquihashForkHeight() - 1);
 
         if ((block.nSolution.size() != oldSize) && (block.nSolution.size() != newSize))
             return state.DoS(100, error("CheckBlockHeader(): Equihash solution has invalid size have %d need [%d, %d]",
                                         block.nSolution.size(), oldSize, newSize),
                              REJECT_INVALID, "invalid-solution-size");
 
-        if (!CheckEquihashSolution(&block, Params()))
+        if (!CheckEquihashSolution(&block, Params().GetConsensus()))
             return state.DoS(100, error("CheckBlockHeader(): Equihash solution invalid"),
                              REJECT_INVALID, "invalid-solution");
     }

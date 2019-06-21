@@ -530,8 +530,8 @@ void static BitcoinMiner(const CChainParams& chainparams)
             CBlockIndex* pindexPrev = chainActive.Tip();
 
             // Get equihash parameters for the next block to be mined.
-            unsigned int n = chainparams.EquihashN(nHeight + 1);
-            unsigned int k = chainparams.EquihashK(nHeight + 1);
+            unsigned int n = chainparams.GetConsensus().EquihashN(nHeight + 1);
+            unsigned int k = chainparams.GetConsensus().EquihashK(nHeight + 1);
             LogPrint("pow", "Using Equihash solver \"%s\" with n = %u, k = %u\n", solver, n, k);
 
             unique_ptr<CBlockTemplate> pblocktemplate(CreateNewBlock(coinbaseScript->reserveScript));

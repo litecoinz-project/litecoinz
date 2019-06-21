@@ -201,8 +201,8 @@ UniValue generate(const UniValue& params, bool fHelp)
 
     while (nHeight < nHeightEnd)
     {
-        n = Params().EquihashN(nHeight + 1);
-        k = Params().EquihashK(nHeight + 1);
+        n = Params().GetConsensus().EquihashN(nHeight + 1);
+        k = Params().GetConsensus().EquihashK(nHeight + 1);
 
         std::unique_ptr<CBlockTemplate> pblocktemplate(CreateNewBlock(coinbaseScript->reserveScript));
         if (!pblocktemplate.get())
@@ -714,8 +714,8 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
     result.push_back(Pair("bits", strprintf("%08x", pblock->nBits)));
     int height = pindexPrev->nHeight + 1;
     result.push_back(Pair("height", (int64_t)height));
-    result.push_back(Pair("equihashn", (int64_t)(Params().EquihashN(height))));
-    result.push_back(Pair("equihashk", (int64_t)(Params().EquihashK(height))));
+    result.push_back(Pair("equihashn", (int64_t)(Params().GetConsensus().EquihashN(height))));
+    result.push_back(Pair("equihashk", (int64_t)(Params().GetConsensus().EquihashK(height))));
 
     return result;
 }

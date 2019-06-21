@@ -86,6 +86,14 @@ public:
         consensus.nMajorityEnforceBlockUpgrade = 750;
         consensus.nMajorityRejectBlockOutdated = 950;
         consensus.nMajorityWindow = 4000;
+        const size_t N_1 = 200, K_1 = 9;
+        const size_t N_2 = 144, K_2 = 5;
+        BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N_1, K_1));
+        BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N_2, K_2));
+        consensus.nEquihashN_1 = N_1;
+        consensus.nEquihashK_1 = K_1;
+        consensus.nEquihashN_2 = N_2;
+        consensus.nEquihashK_2 = K_2;
         consensus.powLimit = uint256S("0007ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowAveragingWindow = 17;
         assert(maxUint/UintToArith256(consensus.powLimit) >= consensus.nPowAveragingWindow);
@@ -116,14 +124,6 @@ public:
 
         nDefaultPort = 29333;
         nPruneAfterHeight = 100000;
-        const size_t N = 200, K = 9;
-        const size_t N2 = 144, K2 = 5;
-        BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N, K));
-        BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N2, K2));
-        nEquihashN = N;
-        nEquihashK = K;
-        nEquihashN2 = N2;
-        nEquihashK2 = K2;
 
         genesis = CreateGenesisBlock(
             1512832667,
@@ -213,6 +213,14 @@ public:
         consensus.nMajorityEnforceBlockUpgrade = 51;
         consensus.nMajorityRejectBlockOutdated = 75;
         consensus.nMajorityWindow = 400;
+        const size_t N_1 = 200, K_1 = 9;
+        const size_t N_2 = 144, K_2 = 5;
+        BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N_1, K_1));
+        BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N_2, K_2));
+        consensus.nEquihashN_1 = N_1;
+        consensus.nEquihashK_1 = K_1;
+        consensus.nEquihashN_2 = N_2;
+        consensus.nEquihashK_2 = K_2;
         consensus.powLimit = uint256S("07ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowAveragingWindow = 17;
         assert(maxUint/UintToArith256(consensus.powLimit) >= consensus.nPowAveragingWindow);
@@ -246,15 +254,6 @@ public:
 
         nDefaultPort = 39333;
         nPruneAfterHeight = 1000;
-        const size_t N = 200, K = 9;
-        const size_t N2 = 144, K2 = 5;
-
-        BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N, K));
-        BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N2, K2));
-        nEquihashN = N;
-        nEquihashK = K;
-        nEquihashN2 = N2;
-        nEquihashK2 = K2;
 
         genesis = CreateGenesisBlock(
             1511954736,
@@ -325,6 +324,14 @@ public:
         consensus.nMajorityEnforceBlockUpgrade = 750;
         consensus.nMajorityRejectBlockOutdated = 950;
         consensus.nMajorityWindow = 1000;
+        const size_t N_1 = 48, K_1 = 5;
+        const size_t N_2 = 96, K_2 = 5;
+        BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N_1, K_1));
+        BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N_2, K_2));
+        consensus.nEquihashN_1 = N_1;
+        consensus.nEquihashK_1 = K_1;
+        consensus.nEquihashN_2 = N_2;
+        consensus.nEquihashK_2 = K_2;
         consensus.powLimit = uint256S("0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f");
         consensus.nPowAveragingWindow = 17;
         assert(maxUint/UintToArith256(consensus.powLimit) >= consensus.nPowAveragingWindow);
@@ -356,14 +363,6 @@ public:
 
         nDefaultPort = 49444;
         nPruneAfterHeight = 1000;
-        const size_t N = 48, K = 5;
-        const size_t N2 = 96, K2 = 5;
-        BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N, K));
-        BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N2, K2));
-        nEquihashN = N;
-        nEquihashK = K;
-        nEquihashN2 = N2;
-        nEquihashK2 = K2;
 
         genesis = CreateGenesisBlock(
             1511954736,
@@ -443,7 +442,7 @@ void SelectParams(const std::string& network)
 
 unsigned int CChainParams::EquihashSolutionWidth(int height) const
 {
-    return EhSolutionWidth(EquihashN(height), EquihashK(height));
+    return EhSolutionWidth(consensus.EquihashN(height), consensus.EquihashK(height));
 }
 
 void UpdateNetworkUpgradeParameters(Consensus::UpgradeIndex idx, int nActivationHeight)
