@@ -218,7 +218,7 @@ int printStats(bool mining)
     }
     auto localsolps = GetLocalSolPS();
 
-    if (IsInitialBlockDownload()) {
+    if (IsInitialBlockDownload(Params())) {
         int netheight = EstimateNetHeight(height, tipmediantime, Params());
         int downloadPercent = height * 100 / netheight;
         std::cout << "     " << _("Downloading blocks") << " | " << height << " / ~" << netheight << " (";
@@ -262,7 +262,7 @@ int printMiningStatus(bool mining)
             }
             if (fvNodesEmpty) {
                 std::cout << _(ANSI_COLOR_LYELLOW "Mining is paused while waiting for connections." ANSI_COLOR_RESET) << std::endl;
-            } else if (IsInitialBlockDownload()) {
+            } else if (IsInitialBlockDownload(Params())) {
                 std::cout << _(ANSI_COLOR_LYELLOW "Mining is paused while downloading blocks." ANSI_COLOR_RESET) << std::endl;
             } else {
                 std::cout << _(ANSI_COLOR_LYELLOW "Mining is paused (a JoinSplit may be in progress)." ANSI_COLOR_RESET) << std::endl;
