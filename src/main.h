@@ -29,6 +29,7 @@
 #include "uint256.h"
 #include "addressindex.h"
 #include "spentindex.h"
+#include "timestampindex.h"
 
 #include <algorithm>
 #include <exception>
