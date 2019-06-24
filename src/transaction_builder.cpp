@@ -50,6 +50,7 @@ std::string TransactionBuilderResult::GetError() {
 TransactionBuilder::TransactionBuilder(
     const Consensus::Params& consensusParams,
     int nHeight,
+    int nExpiryDelta,
     CKeyStore* keystore,
     ZCJoinSplit* sproutParams,
     CCoinsViewCache* coinsView,
@@ -61,7 +62,7 @@ TransactionBuilder::TransactionBuilder(
     coinsView(coinsView),
     cs_coinsView(cs_coinsView)
 {
-    mtx = CreateNewContextualCMutableTransaction(consensusParams, nHeight);
+    mtx = CreateNewContextualCMutableTransaction(consensusParams, nHeight, nExpiryDelta);
 }
 
 // This exception is thrown in certain scenarios when building JoinSplits fails.
@@ -524,6 +525,10 @@ void TransactionBuilder::CreateJSDescriptions()
             // Update tree state with previous joinsplit
             SproutMerkleTree tree;
             {
+                // assert that coinsView is not null
+                assert(coinsView);
+                // We do not check cs_coinView because we do not set this in testing
+                // assert(cs_coinsView);
                 LOCK(cs_coinsView);
                 auto it = intermediates.find(prevJoinSplit.anchor);
                 if (it != intermediates.end()) {

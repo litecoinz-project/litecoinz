@@ -72,6 +72,7 @@ testScripts=(
     'p2p_node_bloom.py'
     'regtest_signrawtransaction.py'
     'finalsaplingroot.py'
+    'sprout_sapling_migration.py'
     'blockdelay.py'
 );
 testScriptsExt=(
