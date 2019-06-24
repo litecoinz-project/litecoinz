@@ -590,6 +590,7 @@ void CWallet::ChainTip(const CBlockIndex *pindex,
             RunSaplingMigration(pindex->nHeight);
         }
     } else {
+        DecrementNoteWitnesses(pindex);
         UpdateSaplingNullifierNoteMapForBlock(pblock);
     }
 }
