@@ -2994,29 +2994,6 @@ void static UpdateTip(CBlockIndex *pindexNew, const CChainParams& chainParams) {
       syncProgress, pcoinsTip->DynamicMemoryUsage() * (1.0 / (1<<20)), pcoinsTip->GetCacheSize());
 
     cvBlockChange.notify_all();
-
-    // Check the version of the last 100 blocks to see if we need to upgrade:
-    static bool fWarned = false;
-    if (!IsInitialBlockDownload(chainParams) && !fWarned)
-    {
-        int nUpgraded = 0;
-        const CBlockIndex* pindex = chainActive.Tip();
-        for (int i = 0; i < 100 && pindex != NULL; i++)
-        {
-            if (pindex->nVersion > CBlock::CURRENT_VERSION)
-                ++nUpgraded;
-            pindex = pindex->pprev;
-        }
-        if (nUpgraded > 0)
-            LogPrintf("%s: %d of last 100 blocks above version %d\n", __func__, nUpgraded, (int)CBlock::CURRENT_VERSION);
-        if (nUpgraded > 100/2)
-        {
-            // strWarning is read by GetWarnings(), called by the JSON-RPC code to warn the user:
-            std::string strWarning = _("Warning: This version is obsolete; upgrade required!");
-            CAlert::Notify(strWarning, true);
-            fWarned = true;
-        }
-    }
 }
 
 /**
