@@ -62,12 +62,12 @@ WalletModel::~WalletModel()
 CAmount WalletModel::getZBalance(bool showUnconfirmed) const
 {
     CAmount balance = 0;
-    std::vector<CSproutNotePlaintextEntry> sproutEntries;
+    std::vector<SproutNoteEntry> sproutEntries;
     std::vector<SaplingNoteEntry> saplingEntries;
     LOCK2(cs_main, wallet->cs_wallet);
     wallet->GetFilteredNotes(sproutEntries, saplingEntries, "", 1, true, showUnconfirmed);
     for (auto & entry : sproutEntries) {
-        balance += CAmount(entry.plaintext.value());
+        balance += CAmount(entry.note.value());
     }
     for (auto & entry : saplingEntries) {
         balance += CAmount(entry.note.value());
