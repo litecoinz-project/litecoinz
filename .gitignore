@@ -9,6 +9,10 @@ src/litecoinz-tx
 src/test/test_litecoinz
 src/qt/test/test_litecoinz-qt
 
+# Zcash utilities
+src/zcash/GenerateParams
+src/zcash/CreateJoinSplit
+
 # autoreconf
 Makefile.in
 aclocal.m4
