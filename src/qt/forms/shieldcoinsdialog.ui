@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>998</width>
-    <height>161</height>
+    <height>185</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -113,16 +113,6 @@
    <item row="1" column="0">
     <layout class="QHBoxLayout" name="horizontalLayoutOptions">
      <item>
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>Fee</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="BitcoinAmountField" name="customFee"/>
-     </item>
-     <item>
       <widget class="QLabel" name="label_3">
        <property name="text">
         <string>Limit</string>
@@ -203,14 +193,6 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>BitcoinAmountField</class>
-   <extends>QLineEdit</extends>
-   <header>bitcoinamountfield.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources>
   <include location="../bitcoin.qrc"/>
  </resources>

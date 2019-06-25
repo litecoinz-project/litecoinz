@@ -79,7 +79,6 @@ SendZCoinsDialog::SendZCoinsDialog(const PlatformStyle *platformStyle, QWidget *
     ui->labelCoinSelectionLowOutput->addAction(clipboardLowOutputAction);
     ui->labelCoinSelectionChange->addAction(clipboardChangeAction);
 
-    ui->customFee->setValue(ASYNC_RPC_OPERATION_DEFAULT_MINERS_FEE);
     ui->widgetCoinSelection->hide();
 }
 
@@ -109,12 +108,6 @@ void SendZCoinsDialog::setModel(WalletModel *model)
         connect(model->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(coinControlUpdateLabels()));
         coinControlUpdateLabels();
 
-        // fee section
-        connect(ui->checkBoxCustomFee, SIGNAL(stateChanged(int)), this, SLOT(updateFeeSectionControls()));
-        connect(ui->customFee, SIGNAL(valueChanged()), this, SLOT(updateGlobalFeeVariables()));
-        connect(ui->customFee, SIGNAL(valueChanged()), this, SLOT(coinControlUpdateLabels()));
-        ui->customFee->setSingleStep(CWallet::minTxFee.GetFeePerK());
-        updateFeeSectionControls();
         updateGlobalFeeVariables();
     }
 }
@@ -163,7 +156,7 @@ void SendZCoinsDialog::on_sendButton_clicked()
         return;
     }
 
-    CAmount txFee = nMinimumTotalFee;
+    CAmount txFee = ASYNC_RPC_OPERATION_DEFAULT_MINERS_FEE;
 
     // prepare transaction for getting txFee earlier
     WalletModelTransaction currentTransaction(recipients);
@@ -316,10 +309,6 @@ void SendZCoinsDialog::clear()
     }
     addEntry();
 
-    ui->checkBoxCustomFee->setChecked(false);
-    ui->customFee->setValue(ASYNC_RPC_OPERATION_DEFAULT_MINERS_FEE);
-    ui->customFee->setEnabled(false);
-
     updateTabsAndLabels();
 }
 
@@ -461,7 +450,6 @@ void SendZCoinsDialog::setBalance(const CAmount& balance, const CAmount& unconfi
 void SendZCoinsDialog::updateDisplayUnit()
 {
     setBalance(0, 0, 0, 0, 0, 0, model->getTBalance(), model->getZBalance(false), model->getUnshielded());
-    ui->customFee->setDisplayUnit(model->getOptionsModel()->getDisplayUnit());
 }
 
 void SendZCoinsDialog::processSendCoinsReturn(const WalletModel::SendCoinsReturn &sendCoinsReturn, const QString &msgArg)
@@ -514,20 +502,10 @@ void SendZCoinsDialog::processSendCoinsReturn(const WalletModel::SendCoinsReturn
     Q_EMIT message(tr("Send Coins"), msgParams.first, msgParams.second);
 }
 
-void SendZCoinsDialog::updateFeeSectionControls()
-{
-    ui->customFee->setEnabled(ui->checkBoxCustomFee->isChecked());
-    if(!ui->checkBoxCustomFee->isChecked())
-        ui->customFee->setValue(ASYNC_RPC_OPERATION_DEFAULT_MINERS_FEE);
-}
-
 void SendZCoinsDialog::updateGlobalFeeVariables()
 {
     nTxConfirmTarget = defaultZConfirmTarget;
-    payTxFee = CFeeRate(ui->customFee->value());
-
-    // if user has selected to set a minimum absolute fee, pass the value to coincontrol
-    nMinimumTotalFee = ui->checkBoxCustomFee->isChecked() ? ui->customFee->value() : ASYNC_RPC_OPERATION_DEFAULT_MINERS_FEE;
+    payTxFee = CFeeRate(ASYNC_RPC_OPERATION_DEFAULT_MINERS_FEE);
 }
 
 // Coin Control: copy label "Amount" to clipboard
@@ -587,9 +565,6 @@ void SendZCoinsDialog::coinControlUpdateLabels()
     if (!model || !model->getOptionsModel())
         return;
 
-    // only enable the feature if inputs are selected
-    ui->checkBoxCustomFee->setEnabled(!ui->coinSelectionText->text().isEmpty());
-
     // set pay amounts
     SendZCoinsDialog::payAmounts.clear();
     for(int i = 0; i < ui->entries->count(); ++i)
@@ -648,13 +623,7 @@ void SendZCoinsDialog::updateLabels()
     nAmount += inputAmount;
 
     // Fee
-    if ((ui->checkBoxCustomFee->isChecked()) && (nMinimumTotalFee == 0))
-        nPayFee = 0;
-    else
-        nPayFee = ASYNC_RPC_OPERATION_DEFAULT_MINERS_FEE;
-
-    if (nPayFee > 0 && nMinimumTotalFee > nPayFee)
-        nPayFee = nMinimumTotalFee;
+    nPayFee = ASYNC_RPC_OPERATION_DEFAULT_MINERS_FEE;
 
     if (nPayAmount > 0)
     {

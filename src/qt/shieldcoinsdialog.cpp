@@ -40,8 +40,6 @@ ShieldCoinsDialog::ShieldCoinsDialog(const PlatformStyle *platformStyle, QWidget
     ui->reqShieldAddress->setEnabled(false);
 
     // init transaction fee section
-    ui->customFee->setValue(ASYNC_RPC_OPERATION_DEFAULT_MINERS_FEE);
-
     ui->operationLimit->setMinimum(50);
     ui->operationLimit->setMaximum(5000);
     ui->operationLimit->setSingleStep(10);
@@ -147,30 +145,13 @@ void ShieldCoinsDialog::setModel(WalletModel *model)
     this->model = model;
     if(model && model->getOptionsModel())
     {
-        connect(model->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(updateDisplayUnit()));
-        updateDisplayUnit();
-
-        // fee section
-        connect(ui->customFee, SIGNAL(valueChanged()), this, SLOT(updateGlobalFeeVariables()));
-
-        ui->customFee->setSingleStep(CWallet::minTxFee.GetFeePerK());
         updateGlobalFeeVariables();
     }
 }
 
-void ShieldCoinsDialog::updateDisplayUnit()
-{
-    ui->customFee->setDisplayUnit(model->getOptionsModel()->getDisplayUnit());
-}
-
-void ShieldCoinsDialog::setMinimumFee()
-{
-    ui->customFee->setValue(CWallet::minTxFee.GetFeePerK());
-}
-
 void ShieldCoinsDialog::updateGlobalFeeVariables()
 {
-    payTxFee = CFeeRate(ui->customFee->value());
+    payTxFee = CFeeRate(ASYNC_RPC_OPERATION_DEFAULT_MINERS_FEE);
 }
 
 void ShieldCoinsDialog::setAddress(const QString &address)

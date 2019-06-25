@@ -47,8 +47,6 @@ private Q_SLOTS:
     /** Shield coins in coinbase from taddress to zaddress */
     void on_shieldButton_clicked();
 
-    void updateDisplayUnit();
-    void setMinimumFee();
     void updateGlobalFeeVariables();
 
 private:
