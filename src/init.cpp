@@ -1278,7 +1278,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 
     // Sanity check
     if (!InitSanityCheck())
-        return InitError(_("Initialization sanity check failed. LitecoinZ is shutting down."));
+        return InitError(strprintf(_("Initialization sanity check failed. %s is shutting down."), _(PACKAGE_NAME)));
 
     std::string strDataDir = GetDataDir().string();
 #ifdef ENABLE_WALLET
@@ -1294,9 +1294,9 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     try {
         static boost::interprocess::file_lock lock(pathLockFile.string().c_str());
         if (!lock.try_lock())
-            return InitError(strprintf(_("Cannot obtain a lock on data directory %s. LitecoinZ is probably already running."), strDataDir));
+            return InitError(strprintf(_("Cannot obtain a lock on data directory %s. %s is probably already running."), strDataDir, _(PACKAGE_NAME)));
     } catch(const boost::interprocess::interprocess_exception& e) {
-        return InitError(strprintf(_("Cannot obtain a lock on data directory %s. LitecoinZ is probably already running.") + " %s.", strDataDir, e.what()));
+        return InitError(strprintf(_("Cannot obtain a lock on data directory %s. %s is probably already running.") + " %s.", strDataDir, _(PACKAGE_NAME), e.what()));
     }
 
 #ifndef WIN32
@@ -1769,10 +1769,10 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                 InitWarning(msg);
             }
             else if (nLoadWalletRet == DB_TOO_NEW)
-                strErrors << _("Error loading wallet.dat: Wallet requires newer version of LitecoinZ") << "\n";
+                strErrors << strprintf(_("Error loading wallet.dat: Wallet requires newer version of %s"), _(PACKAGE_NAME)) << "\n";
             else if (nLoadWalletRet == DB_NEED_REWRITE)
             {
-                strErrors << _("Wallet needed to be rewritten: restart LitecoinZ to complete") << "\n";
+                strErrors << strprintf(_("Wallet needed to be rewritten: restart %s to complete"), _(PACKAGE_NAME)) << "\n";
                 LogPrintf("%s", strErrors.str());
                 return InitError(strErrors.str());
             }

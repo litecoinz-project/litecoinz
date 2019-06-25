@@ -4,6 +4,10 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#if defined(HAVE_CONFIG_H)
+#include "config/bitcoin-config.h"
+#endif
+
 #include "clientversion.h"
 #include "rpc/server.h"
 #include "init.h"
@@ -73,7 +77,7 @@ bool AppInit(int argc, char* argv[])
     // Process help and version before taking care about datadir
     if (mapArgs.count("-?") || mapArgs.count("-h") ||  mapArgs.count("-help") || mapArgs.count("-version"))
     {
-        std::string strUsage = _("LitecoinZ Daemon") + " " + _("version") + " " + FormatFullVersion() + "\n";
+        std::string strUsage = strprintf(_("%s Daemon"), _(PACKAGE_NAME)) + " " + _("version") + " " + FormatFullVersion() + "\n";
 
         if (mapArgs.count("-version"))
         {
@@ -82,7 +86,7 @@ bool AppInit(int argc, char* argv[])
         else
         {
             strUsage += "\n" + _("Usage:") + "\n" +
-                  "  litecoinzd [options]                     " + _("Start LitecoinZ Daemon") + "\n";
+                  "  litecoinzd [options]                     " + strprintf(_("Start %s Daemon"), _(PACKAGE_NAME)) + "\n";
 
             strUsage += "\n" + HelpMessage(HMM_BITCOIND);
         }
