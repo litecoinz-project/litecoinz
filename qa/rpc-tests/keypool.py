@@ -126,5 +126,21 @@ def main():
         print("Failed")
         sys.exit(1)
 
+    # refill keypool with three new addresses
+    nodes[0].walletpassphrase('test', 12000)
+    nodes[0].keypoolrefill(3)
+    nodes[0].walletlock()
+
+    # drain them by mining
+    nodes[0].generate(1)
+    nodes[0].generate(1)
+    nodes[0].generate(1)
+    nodes[0].generate(1)
+    try:
+        nodes[0].generate(1)
+        raise AssertionError('Keypool should be exhausted after three addresses')
+    except JSONRPCException,e:
+        assert(e.error['code']==-12)
+
 if __name__ == '__main__':
     main()
