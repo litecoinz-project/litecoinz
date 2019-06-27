@@ -34,9 +34,10 @@ bool TransactionRecord::showTransaction(const CWalletTx &wtx)
 
 bool TransactionRecord::findZTransaction(const CWallet *wallet, const uint256 &hash, CAmount &amout, std::string &address)
 {
-    std::set<libzcash::SproutPaymentAddress> addresses;
-    wallet->GetSproutPaymentAddresses(addresses);
-    for (auto addr : addresses ) {
+    // Sprout support
+    std::set<libzcash::SproutPaymentAddress> sproutzaddrs;
+    wallet->GetSproutPaymentAddresses(sproutzaddrs);
+    for (auto addr : sproutzaddrs ) {
         if (wallet->HaveSproutSpendingKey(addr)) {
             UniValue params(UniValue::VARR);
             params.push_back(EncodePaymentAddress(addr));
@@ -54,6 +55,31 @@ bool TransactionRecord::findZTransaction(const CWallet *wallet, const uint256 &h
             }
         }
     }
+
+    // Sapling support
+    std::set<libzcash::SaplingPaymentAddress> saplingzaddrs;
+    wallet->GetSaplingPaymentAddresses(saplingzaddrs);
+    libzcash::SaplingIncomingViewingKey ivk;
+    libzcash::SaplingFullViewingKey fvk;
+    for (auto addr : saplingzaddrs ) {
+        if (wallet->GetSaplingIncomingViewingKey(addr, ivk) && wallet->GetSaplingFullViewingKey(ivk, fvk) && wallet->HaveSaplingSpendingKey(fvk)) {
+            UniValue params(UniValue::VARR);
+            params.push_back(EncodePaymentAddress(addr));
+            params.push_back(0);
+            UniValue ret = z_listreceivedbyaddress(params, false);
+            for (const UniValue& entry : ret.getValues()) {
+                UniValue txid = find_value(entry, "txid");
+                UniValue amount = find_value(entry, "amount");
+                if(txid.get_str() == hash.GetHex())
+                {
+                    amout = AmountFromValue(amount);
+                    address = EncodePaymentAddress(addr);
+                    return true;
+                }
+            }
+        }
+    }
+
     return false;
 }
 
@@ -64,7 +90,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
 {
     QList<TransactionRecord> parts;
 
-    if(wtx.vjoinsplit.size() > 0)
+    if (wtx.vjoinsplit.size() > 0 || wtx.vShieldedSpend.size() > 0 || wtx.vShieldedOutput.size() > 0)
     {
         parts = TransactionRecord::decomposeZTransaction(wallet, wtx);
     }

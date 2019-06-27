@@ -247,15 +247,11 @@ bool WalletModel::validateAddress(const QString &address)
 
 bool WalletModel::validateZAddress(const QString &address)
 {
-    bool isZaddr = false;
-
     // Validate the passed LitecoinZ zaddress
-    libzcash::PaymentAddress dest = DecodePaymentAddress(address.toStdString());
-    if (IsValidPaymentAddress(dest)) {
-        isZaddr = true;
-    }
+    auto dest = DecodePaymentAddress(address.toStdString());
+    bool isValid = IsValidPaymentAddress(dest);
 
-    if (isZaddr)
+    if (isValid)
         return QValidator::Acceptable;
 
     return QValidator::Invalid;

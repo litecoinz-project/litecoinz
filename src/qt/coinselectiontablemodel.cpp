@@ -123,6 +123,7 @@ public:
             int nMaxDepth = 9999999;
             CAmount nSum = 0;
 
+            // Sprout support
             std::set<libzcash::SproutPaymentAddress> sproutzaddrs = {};
             wallet->GetSproutPaymentAddresses(sproutzaddrs);
 
