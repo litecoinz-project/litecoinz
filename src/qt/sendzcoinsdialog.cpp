@@ -16,6 +16,7 @@
 
 #include "base58.h"
 #include "coincontrol.h"
+#include "key_io.h"
 #include "main.h" // mempool and minRelayTxFee
 #include "ui_interface.h"
 #include "txmempool.h"
@@ -146,6 +147,24 @@ void SendZCoinsDialog::on_sendButton_clicked()
         return;
     }
 
+    bool fromTaddr = false;
+    bool fromSapling = false;
+
+    CTxDestination taddr = DecodeDestination(inputAddress.toStdString());
+    fromTaddr = IsValidDestination(taddr);
+    if (!fromTaddr) {
+        auto res = DecodePaymentAddress(inputAddress.toStdString());
+        if (!IsValidPaymentAddress(res)) {
+            QMessageBox msgBox("", "Invalid from address, should be a taddr or zaddr.", QMessageBox::Critical, 0, 0, 0, this, Qt::WindowTitleHint | Qt::WindowSystemMenuHint);
+            msgBox.exec();
+            return;
+        }
+        fromSapling = boost::get<libzcash::SaplingPaymentAddress>(&res) != nullptr;
+    }
+
+    bool fromSprout = !(fromTaddr || fromSapling);
+    bool noSproutAddrs = !fromSprout;
+
     fNewRecipientAllowed = false;
 
     WalletModel::UnlockContext ctx(model->requestUnlock());
@@ -170,6 +189,37 @@ void SendZCoinsDialog::on_sendButton_clicked()
     if(prepareStatus.status != WalletModel::OK) {
         fNewRecipientAllowed = true;
         return;
+    }
+
+    bool containsSproutOutput = false;
+    bool containsSaplingOutput = false;
+
+    Q_FOREACH(const SendCoinsRecipient &rcp, currentTransaction.getRecipients())
+    {
+        CTxDestination taddr = DecodeDestination(rcp.address.toStdString());
+        if (!IsValidDestination(taddr)) {
+            auto res = DecodePaymentAddress(rcp.address.toStdString());
+            if (IsValidPaymentAddress(res)) {
+                bool toSapling = boost::get<libzcash::SaplingPaymentAddress>(&res) != nullptr;
+                bool toSprout = !toSapling;
+                noSproutAddrs = noSproutAddrs && toSapling;
+
+                containsSproutOutput |= toSprout;
+                containsSaplingOutput |= toSapling;
+
+                if (containsSproutOutput && containsSaplingOutput) {
+                    QMessageBox msgBox("", "Cannot send to both Sprout and Sapling addresses.", QMessageBox::Critical, 0, 0, 0, this, Qt::WindowTitleHint | Qt::WindowSystemMenuHint);
+                    msgBox.exec();
+                    return;
+                }
+
+                if ((fromSprout && toSapling) || (fromSapling && toSprout)) {
+                    QMessageBox msgBox("", "Cannot send between Sprout and Sapling addresses.", QMessageBox::Critical, 0, 0, 0, this, Qt::WindowTitleHint | Qt::WindowSystemMenuHint);
+                    msgBox.exec();
+                    return;
+                }
+            }
+        }
     }
 
     UniValue params(UniValue::VARR);
@@ -266,11 +316,10 @@ void SendZCoinsDialog::on_sendButton_clicked()
         return;
     }
 
-    UniValue ret;
     QString strStatus;
 
     try {
-        ret = z_sendmany(params, false);
+        auto ret = z_sendmany(params, false);
         QString opid = QString::fromStdString(ret.get_str());
 
         ResultsDialog dlg(this);
