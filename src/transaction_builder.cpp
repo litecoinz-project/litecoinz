@@ -225,6 +225,7 @@ TransactionBuilderResult TransactionBuilder::Build()
     //
 
     if (change > 0) {
+        // Send change to the specified change address. If no change address
         // was set, send change to the first Sapling address given as input
         // if any; otherwise the first Sprout address given as input.
         // (A t-address can only be used as the change address if explicitly set.)
