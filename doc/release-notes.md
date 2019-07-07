@@ -40,6 +40,15 @@ The migration can be enabled using the RPC `z_setmigration` or by including
 migrated to the wallet's default Sapling address; it is also possible to set the 
 receiving Sapling address using the `-migrationdestaddress` option in `litecoinz.conf`.
 
+New consensus rule: Reject blocks that violate turnstile
+--------------------------------------------------------
+In this release the consensus rules were changed to enforce a consensus rule
+which marks blocks as invalid if they would lead to a turnstile violation in
+the Sprout or Shielded value pools.
+
+Developers can use a new experimental feature `-developersetpoolsizezero` to test
+Sprout and Sapling turnstile violations.
+
 64-bit ARMv8 support
 --------------------
 Added ARMv8 (AArch64) support. This enables users to build litecoinz on even more

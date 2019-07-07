@@ -198,6 +198,14 @@ public:
                             //   (the tx=... number in the SetBestChain debug.log lines)
             1600            // * estimated number of transactions per day after checkpoint
         };
+
+        // Hardcoded fallback value for the Sprout shielded value pool balance
+        // for nodes that have not reindexed since the introduction of monitoring
+        // in #2795.
+        nSproutValuePoolCheckpointHeight = 313335;
+        nSproutValuePoolCheckpointBalance = 50924382539501;
+        fZIP209Enabled = true;
+        hashSproutValuePoolCheckpointBlock = uint256S("00001531c60bc5d9730693ead57f49ec26d175d548360c47b0cf80af24dc5d28");
     }
 };
 static CMainParams mainParams;
@@ -312,6 +320,14 @@ public:
                          //   (the tx=... number in the SetBestChain debug.log lines)
             715          //   total number of tx / (checkpoint block height / (24 * 24))
         };
+
+        // Hardcoded fallback value for the Sprout shielded value pool balance
+        // for nodes that have not reindexed since the introduction of monitoring
+        // in #2795.
+        nSproutValuePoolCheckpointHeight = 313335;
+        nSproutValuePoolCheckpointBalance = 50924382539501;
+        fZIP209Enabled = true;
+        hashSproutValuePoolCheckpointBlock = uint256S("00001531c60bc5d9730693ead57f49ec26d175d548360c47b0cf80af24dc5d28");
     }
 };
 static CTestNetParams testNetParams;
@@ -421,6 +437,10 @@ public:
         assert(idx > Consensus::BASE_SPROUT && idx < Consensus::MAX_NETWORK_UPGRADES);
         consensus.vUpgrades[idx].nActivationHeight = nActivationHeight;
     }
+
+    void SetRegTestZIP209Enabled() {
+        fZIP209Enabled = true;
+    }
 };
 static CRegTestParams regTestParams;
 
@@ -447,6 +467,16 @@ void SelectParams(const std::string& network)
 {
     SelectBaseParams(network);
     pCurrentParams = &Params(network);
+
+    // Some python qa rpc tests need to enforce the coinbase consensus rule
+    if (network == CBaseChainParams::REGTEST && mapArgs.count("-regtestprotectcoinbase")) {
+        regTestParams.SetRegTestCoinbaseMustBeProtected();
+    }
+
+    // When a developer is debugging turnstile violations in regtest mode, enable ZIP209
+    if (network == CBaseChainParams::REGTEST && mapArgs.count("-developersetpoolsizezero")) {
+        regTestParams.SetRegTestZIP209Enabled();
+    }
 }
 
 unsigned int CChainParams::EquihashSolutionWidth(int height) const
