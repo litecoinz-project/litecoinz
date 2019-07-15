@@ -78,6 +78,11 @@ public:
     const std::vector<unsigned char>& AlertKey() const { return vAlertPubKey; }
     int GetDefaultPort() const { return nDefaultPort; }
 
+    CAmount SproutValuePoolCheckpointHeight() const { return nSproutValuePoolCheckpointHeight; }
+    CAmount SproutValuePoolCheckpointBalance() const { return nSproutValuePoolCheckpointBalance; }
+    uint256 SproutValuePoolCheckpointBlockHash() const { return hashSproutValuePoolCheckpointBlock; }
+    bool ZIP209Enabled() const { return fZIP209Enabled; }
+
     const CBlock& GenesisBlock() const { return genesis; }
     /** Make miner wait to have peers to avoid wasting work */
     bool MiningRequiresPeers() const { return fMiningRequiresPeers; }
@@ -86,22 +91,6 @@ public:
     /** Policy: Filter transactions that do not match well-defined patterns */
     bool RequireStandard() const { return fRequireStandard; }
     int64_t PruneAfterHeight() const { return nPruneAfterHeight; }
-    unsigned int EquihashN(int height = 0) const
-    {
-        if(height < consensus.nEquihashForkHeight) {
-            return nEquihashN;
-        } else {
-            return nEquihashN2;
-        }
-    }
-    unsigned int EquihashK(int height = 0) const
-    {
-        if(height < consensus.nEquihashForkHeight) {
-            return nEquihashK;
-        } else {
-            return nEquihashK2;
-        }
-    }
     unsigned int EquihashSolutionWidth(int height) const;
 
     std::string CurrencyUnits() const { return strCurrencyUnits; }
@@ -119,8 +108,6 @@ public:
     const CCheckpointData& Checkpoints() const { return checkpointData; }
     /** Enforce coinbase consensus rule in regtest mode */
     void SetRegTestCoinbaseMustBeProtected() { consensus.fCoinbaseMustBeProtected = true; }
-
-    uint64_t EquihashForkHeight() const { return consensus.nEquihashForkHeight; };
 protected:
     CChainParams() {}
 
@@ -130,10 +117,6 @@ protected:
     std::vector<unsigned char> vAlertPubKey;
     int nDefaultPort = 0;
     uint64_t nPruneAfterHeight = 0;
-    unsigned int nEquihashN = 0;
-    unsigned int nEquihashK = 0;
-    unsigned int nEquihashN2 = 0;
-    unsigned int nEquihashK2 = 0;
     std::vector<CDNSSeedData> vSeeds;
     std::vector<unsigned char> base58Prefixes[MAX_BASE58_TYPES];
     std::string bech32HRPs[MAX_BECH32_TYPES];
@@ -148,6 +131,11 @@ protected:
     bool fMineBlocksOnDemand = false;
     bool fTestnetToBeDeprecatedFieldRPC = false;
     CCheckpointData checkpointData;
+
+    CAmount nSproutValuePoolCheckpointHeight = 0;
+    CAmount nSproutValuePoolCheckpointBalance = 0;
+    uint256 hashSproutValuePoolCheckpointBlock;
+    bool fZIP209Enabled = false;
 };
 
 /**

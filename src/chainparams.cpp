@@ -86,6 +86,14 @@ public:
         consensus.nMajorityEnforceBlockUpgrade = 750;
         consensus.nMajorityRejectBlockOutdated = 950;
         consensus.nMajorityWindow = 4000;
+        const size_t N_1 = 200, K_1 = 9;
+        const size_t N_2 = 144, K_2 = 5;
+        BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N_1, K_1));
+        BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N_2, K_2));
+        consensus.nEquihashN_1 = N_1;
+        consensus.nEquihashK_1 = K_1;
+        consensus.nEquihashN_2 = N_2;
+        consensus.nEquihashK_2 = K_2;
         consensus.powLimit = uint256S("0007ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowAveragingWindow = 17;
         assert(maxUint/UintToArith256(consensus.powLimit) >= consensus.nPowAveragingWindow);
@@ -103,6 +111,9 @@ public:
         consensus.vUpgrades[Consensus::UPGRADE_OVERWINTER].nActivationHeight = 190000;
         consensus.vUpgrades[Consensus::UPGRADE_SAPLING].nProtocolVersion = 170007;
         consensus.vUpgrades[Consensus::UPGRADE_SAPLING].nActivationHeight = 190000;
+        consensus.vUpgrades[Consensus::UPGRADE_BLOSSOM].nProtocolVersion = 170009;
+        consensus.vUpgrades[Consensus::UPGRADE_BLOSSOM].nActivationHeight =
+            Consensus::NetworkUpgrade::NO_ACTIVATION_HEIGHT;
         consensus.nEquihashForkHeight = 95000;
 
         // The best chain should have at least this much work.
@@ -116,14 +127,6 @@ public:
 
         nDefaultPort = 29333;
         nPruneAfterHeight = 100000;
-        const size_t N = 200, K = 9;
-        const size_t N2 = 144, K2 = 5;
-        BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N, K));
-        BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N2, K2));
-        nEquihashN = N;
-        nEquihashK = K;
-        nEquihashN2 = N2;
-        nEquihashK2 = K2;
 
         genesis = CreateGenesisBlock(
             1512832667,
@@ -195,6 +198,14 @@ public:
                             //   (the tx=... number in the SetBestChain debug.log lines)
             1600            // * estimated number of transactions per day after checkpoint
         };
+
+        // Hardcoded fallback value for the Sprout shielded value pool balance
+        // for nodes that have not reindexed since the introduction of monitoring
+        // in #2795.
+        nSproutValuePoolCheckpointHeight = 313335;
+        nSproutValuePoolCheckpointBalance = 50924382539501;
+        fZIP209Enabled = true;
+        hashSproutValuePoolCheckpointBlock = uint256S("00001531c60bc5d9730693ead57f49ec26d175d548360c47b0cf80af24dc5d28");
     }
 };
 static CMainParams mainParams;
@@ -213,6 +224,14 @@ public:
         consensus.nMajorityEnforceBlockUpgrade = 51;
         consensus.nMajorityRejectBlockOutdated = 75;
         consensus.nMajorityWindow = 400;
+        const size_t N_1 = 200, K_1 = 9;
+        const size_t N_2 = 144, K_2 = 5;
+        BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N_1, K_1));
+        BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N_2, K_2));
+        consensus.nEquihashN_1 = N_1;
+        consensus.nEquihashK_1 = K_1;
+        consensus.nEquihashN_2 = N_2;
+        consensus.nEquihashK_2 = K_2;
         consensus.powLimit = uint256S("07ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowAveragingWindow = 17;
         assert(maxUint/UintToArith256(consensus.powLimit) >= consensus.nPowAveragingWindow);
@@ -233,6 +252,9 @@ public:
         consensus.vUpgrades[Consensus::UPGRADE_OVERWINTER].nActivationHeight = 4000;
         consensus.vUpgrades[Consensus::UPGRADE_SAPLING].nProtocolVersion = 170007;
         consensus.vUpgrades[Consensus::UPGRADE_SAPLING].nActivationHeight = 4000;
+        consensus.vUpgrades[Consensus::UPGRADE_BLOSSOM].nProtocolVersion = 170008;
+        consensus.vUpgrades[Consensus::UPGRADE_BLOSSOM].nActivationHeight =
+            Consensus::NetworkUpgrade::NO_ACTIVATION_HEIGHT;
         consensus.nEquihashForkHeight = 435;
 
         // The best chain should have at least this much work.
@@ -246,15 +268,6 @@ public:
 
         nDefaultPort = 39333;
         nPruneAfterHeight = 1000;
-        const size_t N = 200, K = 9;
-        const size_t N2 = 144, K2 = 5;
-
-        BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N, K));
-        BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N2, K2));
-        nEquihashN = N;
-        nEquihashK = K;
-        nEquihashN2 = N2;
-        nEquihashK2 = K2;
 
         genesis = CreateGenesisBlock(
             1511954736,
@@ -307,6 +320,14 @@ public:
                          //   (the tx=... number in the SetBestChain debug.log lines)
             715          //   total number of tx / (checkpoint block height / (24 * 24))
         };
+
+        // Hardcoded fallback value for the Sprout shielded value pool balance
+        // for nodes that have not reindexed since the introduction of monitoring
+        // in #2795.
+        nSproutValuePoolCheckpointHeight = 313335;
+        nSproutValuePoolCheckpointBalance = 50924382539501;
+        fZIP209Enabled = true;
+        hashSproutValuePoolCheckpointBlock = uint256S("00001531c60bc5d9730693ead57f49ec26d175d548360c47b0cf80af24dc5d28");
     }
 };
 static CTestNetParams testNetParams;
@@ -325,6 +346,14 @@ public:
         consensus.nMajorityEnforceBlockUpgrade = 750;
         consensus.nMajorityRejectBlockOutdated = 950;
         consensus.nMajorityWindow = 1000;
+        const size_t N_1 = 48, K_1 = 5;
+        const size_t N_2 = 96, K_2 = 5;
+        BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N_1, K_1));
+        BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N_2, K_2));
+        consensus.nEquihashN_1 = N_1;
+        consensus.nEquihashK_1 = K_1;
+        consensus.nEquihashN_2 = N_2;
+        consensus.nEquihashK_2 = K_2;
         consensus.powLimit = uint256S("0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f");
         consensus.nPowAveragingWindow = 17;
         assert(maxUint/UintToArith256(consensus.powLimit) >= consensus.nPowAveragingWindow);
@@ -344,6 +373,9 @@ public:
         consensus.vUpgrades[Consensus::UPGRADE_SAPLING].nProtocolVersion = 170006;
         consensus.vUpgrades[Consensus::UPGRADE_SAPLING].nActivationHeight =
             Consensus::NetworkUpgrade::NO_ACTIVATION_HEIGHT;
+        consensus.vUpgrades[Consensus::UPGRADE_BLOSSOM].nProtocolVersion = 170008;
+        consensus.vUpgrades[Consensus::UPGRADE_BLOSSOM].nActivationHeight =
+            Consensus::NetworkUpgrade::NO_ACTIVATION_HEIGHT;
         consensus.nEquihashForkHeight = 100;
 
         // The best chain should have at least this much work.
@@ -356,14 +388,6 @@ public:
 
         nDefaultPort = 49444;
         nPruneAfterHeight = 1000;
-        const size_t N = 48, K = 5;
-        const size_t N2 = 96, K2 = 5;
-        BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N, K));
-        BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N2, K2));
-        nEquihashN = N;
-        nEquihashK = K;
-        nEquihashN2 = N2;
-        nEquihashK2 = K2;
 
         genesis = CreateGenesisBlock(
             1511954736,
@@ -376,8 +400,8 @@ public:
         assert(genesis.hashMerkleRoot == uint256S("0x87800ace8ce2299bbf33ac3f76186ee66be9d7de9a9e22cdba040d3c4776870e"));
         assert(consensus.hashGenesisBlock == uint256S("0x010539fc03180019d4de063a7fc0089e5e7d500ed5e943936ea7ea0e7aacd54a"));
 
-        vFixedSeeds.clear(); //! Regtest mode doesn't have any fixed seeds.
-        vSeeds.clear();  //! Regtest mode doesn't have any DNS seeds.
+        vFixedSeeds.clear(); //!< Regtest mode doesn't have any fixed seeds.
+        vSeeds.clear();      //!< Regtest mode doesn't have any DNS seeds.
 
         // These prefixes are the same as the testnet prefixes
         base58Prefixes[PUBKEY_ADDRESS]     = {0x0E,0xA4};
@@ -413,6 +437,10 @@ public:
         assert(idx > Consensus::BASE_SPROUT && idx < Consensus::MAX_NETWORK_UPGRADES);
         consensus.vUpgrades[idx].nActivationHeight = nActivationHeight;
     }
+
+    void SetRegTestZIP209Enabled() {
+        fZIP209Enabled = true;
+    }
 };
 static CRegTestParams regTestParams;
 
@@ -439,11 +467,21 @@ void SelectParams(const std::string& network)
 {
     SelectBaseParams(network);
     pCurrentParams = &Params(network);
+
+    // Some python qa rpc tests need to enforce the coinbase consensus rule
+    if (network == CBaseChainParams::REGTEST && mapArgs.count("-regtestprotectcoinbase")) {
+        regTestParams.SetRegTestCoinbaseMustBeProtected();
+    }
+
+    // When a developer is debugging turnstile violations in regtest mode, enable ZIP209
+    if (network == CBaseChainParams::REGTEST && mapArgs.count("-developersetpoolsizezero")) {
+        regTestParams.SetRegTestZIP209Enabled();
+    }
 }
 
 unsigned int CChainParams::EquihashSolutionWidth(int height) const
 {
-    return EhSolutionWidth(EquihashN(height), EquihashK(height));
+    return EhSolutionWidth(consensus.EquihashN(height), consensus.EquihashK(height));
 }
 
 void UpdateNetworkUpgradeParameters(Consensus::UpgradeIndex idx, int nActivationHeight)

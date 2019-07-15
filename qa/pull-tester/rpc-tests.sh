@@ -38,6 +38,7 @@ testScripts=(
     'txn_doublespend.py --mineblock'
     'getchaintips.py'
     'rawtransactions.py'
+    'getrawtransaction_insight.py'
     'rest.py'
     'mempool_spendcoinbase.py'
     'mempool_reorg.py'
@@ -72,6 +73,7 @@ testScripts=(
     'p2p_node_bloom.py'
     'regtest_signrawtransaction.py'
     'finalsaplingroot.py'
+    'sprout_sapling_migration.py'
     'blockdelay.py'
 );
 testScriptsExt=(

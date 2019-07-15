@@ -20,7 +20,14 @@
 
 #include "uint256.h"
 
-static const unsigned int MAX_SCRIPT_ELEMENT_SIZE = 520; // bytes
+// Maximum number of bytes pushable to the stack
+static const unsigned int MAX_SCRIPT_ELEMENT_SIZE = 520;
+
+// Maximum number of non-push operations per script
+static const int MAX_OPS_PER_SCRIPT = 201;
+
+// Maximum number of public keys per multisig
+static const int MAX_PUBKEYS_PER_MULTISIG = 20;
 
 // Maximum script length in bytes
 static const int MAX_SCRIPT_SIZE = 10000;
@@ -567,10 +574,15 @@ public:
      */
     unsigned int GetSigOpCount(const CScript& scriptSig) const;
 
+    // insightexplorer, there may be more script types in the future
+    enum ScriptType : int {
+        UNKNOWN = 0,
+        P2PKH = 1,
+        P2SH = 2,
+    };
     bool IsPayToPublicKeyHash() const;
     bool IsPayToScriptHash() const;
-
-    int Type() const;
+    ScriptType GetType() const;
     uint160 AddressHash() const;
 
     /** Called by IsStandardTx and P2SH/BIP62 VerifyScript (which makes it consensus-critical). */

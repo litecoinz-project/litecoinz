@@ -170,7 +170,7 @@ unsigned int CScript::GetSigOpCount(bool fAccurate) const
             if (fAccurate && lastOpcode >= OP_1 && lastOpcode <= OP_16)
                 n += DecodeOP_N(lastOpcode);
             else
-                n += 20;
+                n += MAX_PUBKEYS_PER_MULTISIG;
         }
         lastOpcode = opcode;
     }
@@ -242,14 +242,14 @@ bool CScript::IsPushOnly() const
 }
 
 // insightexplorer
-int CScript::Type() const
+CScript::ScriptType CScript::GetType() const
 {
     if (this->IsPayToPublicKeyHash())
-        return 1;
+        return CScript::P2PKH;
     if (this->IsPayToScriptHash())
-        return 2;
+        return CScript::P2SH;
     // We don't know this script
-    return 0;
+    return CScript::UNKNOWN;
 }
 
 // insightexplorer
@@ -262,8 +262,9 @@ uint160 CScript::AddressHash() const
     else if (this->IsPayToScriptHash())
         start = 2;
     else {
-        // unknown script type; return an empty vector
+        // unknown script type; return zeros
         vector<unsigned char> hashBytes;
+        hashBytes.resize(20);
         return uint160(hashBytes);
     }
     vector<unsigned char> hashBytes(this->begin()+start, this->begin()+start+20);

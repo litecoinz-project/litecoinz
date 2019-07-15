@@ -38,14 +38,7 @@ int64_t get_nsec_time()
 /* Return total CPU time consumed by all threads of the process, in nanoseconds. */
 int64_t get_nsec_cpu_time()
 {
-#if defined(__linux__)
-    ::timespec ts;
-    if ( ::clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts) )
-        throw ::std::runtime_error("clock_gettime(CLOCK_PROCESS_CPUTIME_ID) failed");
-    return ts.tv_sec * 1000000000ll + ts.tv_nsec;
-#else
-    return 0;
-#endif
+    return get_nsec_time();
 }
 
 static int64_t start_time;

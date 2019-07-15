@@ -3,6 +3,10 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#if defined(HAVE_CONFIG_H)
+#include "config/bitcoin-config.h"
+#endif
+
 #include "clientversion.h"
 #include "coins.h"
 #include "consensus/consensus.h"
@@ -51,7 +55,7 @@ static int AppInitRawTx(int argc, char* argv[])
     if (argc<2 || mapArgs.count("-?") || mapArgs.count("-h") || mapArgs.count("-help"))
     {
         // First part of help message is specific to this utility
-        std::string strUsage = _("LitecoinZ litecoinz-tx utility version") + " " + FormatFullVersion() + "\n\n" +
+        std::string strUsage = strprintf(_("%s litecoinz-tx utility version"), _(PACKAGE_NAME)) + " " + FormatFullVersion() + "\n\n" +
             _("Usage:") + "\n" +
               "  litecoinz-tx [options] <hex-tx> [commands]  " + _("Update hex-encoded litecoinz transaction") + "\n" +
               "  litecoinz-tx [options] -create [commands]   " + _("Create hex-encoded litecoinz transaction") + "\n" +

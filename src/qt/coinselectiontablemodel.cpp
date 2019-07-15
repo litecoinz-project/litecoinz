@@ -123,6 +123,7 @@ public:
             int nMaxDepth = 9999999;
             CAmount nSum = 0;
 
+            // Sprout support
             std::set<libzcash::SproutPaymentAddress> sproutzaddrs = {};
             wallet->GetSproutPaymentAddresses(sproutzaddrs);
 
@@ -134,12 +135,12 @@ public:
             zaddrs.insert(saplingzaddrs.begin(), saplingzaddrs.end());
 
             if (zaddrs.size() > 0) {
-                std::vector<CSproutNotePlaintextEntry> sproutEntries;
+                std::vector<SproutNoteEntry> sproutEntries;
                 std::vector<SaplingNoteEntry> saplingEntries;
                 wallet->GetFilteredNotes(sproutEntries, saplingEntries, zaddrs, nMinDepth, nMaxDepth, true, false, false);
                 std::set<std::pair<libzcash::PaymentAddress, uint256>> nullifierSet = wallet->GetNullifiersForAddresses(zaddrs);
                 for (auto & entry : sproutEntries) {
-                    nSum = CAmount(entry.plaintext.value());
+                    nSum = CAmount(entry.note.value());
                     if (nSum > 0)
                     {
                         CoinSelectionTableEntry::Type unspentType = translateCoinSelectionType(QString::fromStdString("zcoinselection"));

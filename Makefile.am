@@ -172,7 +172,7 @@ $(BITCOIN_TX_BIN): FORCE
 	$(MAKE) -C src $(@F)
 
 if USE_LCOV
-LCOV_FILTER_PATTERN=-p "/usr/include/" -p "src/leveldb/" -p "src/univalue" -p "src/secp256k1"
+LCOV_FILTER_PATTERN=-p "/usr/include/" -p "src/leveldb/" -p "src/univalue" -p "src/secp256k1" -p "src/snark/"
 
 baseline.info:
 	$(LCOV) -c -i -d $(abs_builddir)/src -o $@
@@ -216,7 +216,8 @@ EXTRA_DIST += \
     qa/pull-tester/rpc-tests.sh \
     qa/pull-tester/run-litecoinz-cli \
     qa/rpc-tests \
-    qa/litecoinz
+    qa/litecoinz \
+    src/snark/libsnark
 
 CLEANFILES = $(OSX_DMG) $(BITCOIN_WIN_INSTALLER)
 

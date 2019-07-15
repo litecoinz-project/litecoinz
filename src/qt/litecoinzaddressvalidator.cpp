@@ -64,10 +64,9 @@ QValidator::State LitecoinZAddressEntryValidator::validate(QString &input, int &
     {
         int ch = input.at(idx).unicode();
 
-        if (((ch >= '0' && ch<='9') ||
+        if ((ch >= '0' && ch<='9') ||
             (ch >= 'a' && ch<='z') ||
-            (ch >= 'A' && ch<='Z')) &&
-            ch != 'l' && ch != 'I' && ch != '0' && ch != 'O')
+            (ch >= 'A' && ch<='Z'))
         {
             // Alphanumeric and not a 'forbidden' character
         }
@@ -88,15 +87,12 @@ LitecoinZAddressCheckValidator::LitecoinZAddressCheckValidator(QObject *parent) 
 QValidator::State LitecoinZAddressCheckValidator::validate(QString &input, int &pos) const
 {
     Q_UNUSED(pos);
-    bool isZaddr = false;
 
     // Validate the passed LitecoinZ zaddress
-    libzcash::PaymentAddress address = DecodePaymentAddress(input.toStdString());
-    if (IsValidPaymentAddress(address)) {
-        isZaddr = true;
-    }
- 
-    if (isZaddr)
+    auto address = DecodePaymentAddress(input.toStdString());
+    bool isValid = IsValidPaymentAddress(address);
+
+    if (isValid)
         return QValidator::Acceptable;
 
     return QValidator::Invalid;

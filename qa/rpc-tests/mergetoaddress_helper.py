@@ -17,13 +17,11 @@ from decimal import Decimal
 def assert_mergetoaddress_exception(expected_error_msg, merge_to_address_lambda):
     try:
         merge_to_address_lambda()
-        caught_exception = False
     except JSONRPCException as e:
         assert_equal(expected_error_msg, e.error['message'])
     except Exception as e:
         fail("Expected JSONRPCException. Found %s" % repr(e))
-
-    if not caught_exception:
+    else:
         fail("Expected exception: %s" % expected_error_msg)
 
 

@@ -100,14 +100,30 @@ public:
                                   QString::fromStdString(EncodeDestination(address))));
             }
 
-            // Shielded address
-            std::set<libzcash::SproutPaymentAddress> addresses;
-            wallet->GetSproutPaymentAddresses(addresses);
-            for (auto addr : addresses ) {
+            // Sprout addresses
+            std::set<libzcash::SproutPaymentAddress> sproutzaddrs;
+            wallet->GetSproutPaymentAddresses(sproutzaddrs);
+            for (auto addr : sproutzaddrs ) {
                 AddressTableEntry::Type addressType = translateTransactionType(
                         QString::fromStdString("zreceive"), true);
                 const std::string& strName = "";
                 if (wallet->HaveSproutSpendingKey(addr)) {
+                    cachedAddressTable.append(AddressTableEntry(addressType,
+                                      QString::fromStdString(strName),
+                                      QString::fromStdString(EncodePaymentAddress(addr))));
+               }
+            }
+
+            // Sapling addresses
+            std::set<libzcash::SaplingPaymentAddress> saplingzaddrs;
+            wallet->GetSaplingPaymentAddresses(saplingzaddrs);
+            libzcash::SaplingIncomingViewingKey ivk;
+            libzcash::SaplingFullViewingKey fvk;
+            for (auto addr : saplingzaddrs ) {
+                AddressTableEntry::Type addressType = translateTransactionType(
+                        QString::fromStdString("zreceive"), true);
+                const std::string& strName = "";
+                if (wallet->GetSaplingIncomingViewingKey(addr, ivk) && wallet->GetSaplingFullViewingKey(ivk, fvk) && wallet->HaveSaplingSpendingKey(fvk)) {
                     cachedAddressTable.append(AddressTableEntry(addressType,
                                       QString::fromStdString(strName),
                                       QString::fromStdString(EncodePaymentAddress(addr))));
@@ -415,7 +431,7 @@ QString AddressTableModel::addRow(const QString &type, const QString &label, con
         // Generate a new zaddress
         LOCK(wallet->cs_wallet);
 
-        libzcash::SproutPaymentAddress pubaddr = wallet->GenerateNewSproutZKey();
+        libzcash::SaplingPaymentAddress pubaddr = wallet->GenerateNewSaplingZKey();
         strAddress = EncodePaymentAddress(pubaddr);
     }
     else

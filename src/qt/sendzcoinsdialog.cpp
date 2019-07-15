@@ -16,6 +16,7 @@
 
 #include "base58.h"
 #include "coincontrol.h"
+#include "key_io.h"
 #include "main.h" // mempool and minRelayTxFee
 #include "ui_interface.h"
 #include "txmempool.h"
@@ -79,7 +80,6 @@ SendZCoinsDialog::SendZCoinsDialog(const PlatformStyle *platformStyle, QWidget *
     ui->labelCoinSelectionLowOutput->addAction(clipboardLowOutputAction);
     ui->labelCoinSelectionChange->addAction(clipboardChangeAction);
 
-    ui->customFee->setValue(ASYNC_RPC_OPERATION_DEFAULT_MINERS_FEE);
     ui->widgetCoinSelection->hide();
 }
 
@@ -109,12 +109,6 @@ void SendZCoinsDialog::setModel(WalletModel *model)
         connect(model->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(coinControlUpdateLabels()));
         coinControlUpdateLabels();
 
-        // fee section
-        connect(ui->checkBoxCustomFee, SIGNAL(stateChanged(int)), this, SLOT(updateFeeSectionControls()));
-        connect(ui->customFee, SIGNAL(valueChanged()), this, SLOT(updateGlobalFeeVariables()));
-        connect(ui->customFee, SIGNAL(valueChanged()), this, SLOT(coinControlUpdateLabels()));
-        ui->customFee->setSingleStep(CWallet::minTxFee.GetFeePerK());
-        updateFeeSectionControls();
         updateGlobalFeeVariables();
     }
 }
@@ -153,6 +147,24 @@ void SendZCoinsDialog::on_sendButton_clicked()
         return;
     }
 
+    bool fromTaddr = false;
+    bool fromSapling = false;
+
+    CTxDestination taddr = DecodeDestination(inputAddress.toStdString());
+    fromTaddr = IsValidDestination(taddr);
+    if (!fromTaddr) {
+        auto res = DecodePaymentAddress(inputAddress.toStdString());
+        if (!IsValidPaymentAddress(res)) {
+            QMessageBox msgBox("", "Invalid from address, should be a taddr or zaddr.", QMessageBox::Critical, 0, 0, 0, this, Qt::WindowTitleHint | Qt::WindowSystemMenuHint);
+            msgBox.exec();
+            return;
+        }
+        fromSapling = boost::get<libzcash::SaplingPaymentAddress>(&res) != nullptr;
+    }
+
+    bool fromSprout = !(fromTaddr || fromSapling);
+    bool noSproutAddrs = !fromSprout;
+
     fNewRecipientAllowed = false;
 
     WalletModel::UnlockContext ctx(model->requestUnlock());
@@ -163,7 +175,7 @@ void SendZCoinsDialog::on_sendButton_clicked()
         return;
     }
 
-    CAmount txFee = nMinimumTotalFee;
+    CAmount txFee = ASYNC_RPC_OPERATION_DEFAULT_MINERS_FEE;
 
     // prepare transaction for getting txFee earlier
     WalletModelTransaction currentTransaction(recipients);
@@ -177,6 +189,37 @@ void SendZCoinsDialog::on_sendButton_clicked()
     if(prepareStatus.status != WalletModel::OK) {
         fNewRecipientAllowed = true;
         return;
+    }
+
+    bool containsSproutOutput = false;
+    bool containsSaplingOutput = false;
+
+    Q_FOREACH(const SendCoinsRecipient &rcp, currentTransaction.getRecipients())
+    {
+        CTxDestination taddr = DecodeDestination(rcp.address.toStdString());
+        if (!IsValidDestination(taddr)) {
+            auto res = DecodePaymentAddress(rcp.address.toStdString());
+            if (IsValidPaymentAddress(res)) {
+                bool toSapling = boost::get<libzcash::SaplingPaymentAddress>(&res) != nullptr;
+                bool toSprout = !toSapling;
+                noSproutAddrs = noSproutAddrs && toSapling;
+
+                containsSproutOutput |= toSprout;
+                containsSaplingOutput |= toSapling;
+
+                if (containsSproutOutput && containsSaplingOutput) {
+                    QMessageBox msgBox("", "Cannot send to both Sprout and Sapling addresses.", QMessageBox::Critical, 0, 0, 0, this, Qt::WindowTitleHint | Qt::WindowSystemMenuHint);
+                    msgBox.exec();
+                    return;
+                }
+
+                if ((fromSprout && toSapling) || (fromSapling && toSprout)) {
+                    QMessageBox msgBox("", "Cannot send between Sprout and Sapling addresses.", QMessageBox::Critical, 0, 0, 0, this, Qt::WindowTitleHint | Qt::WindowSystemMenuHint);
+                    msgBox.exec();
+                    return;
+                }
+            }
+        }
     }
 
     UniValue params(UniValue::VARR);
@@ -273,11 +316,10 @@ void SendZCoinsDialog::on_sendButton_clicked()
         return;
     }
 
-    UniValue ret;
     QString strStatus;
 
     try {
-        ret = z_sendmany(params, false);
+        auto ret = z_sendmany(params, false);
         QString opid = QString::fromStdString(ret.get_str());
 
         ResultsDialog dlg(this);
@@ -315,10 +357,6 @@ void SendZCoinsDialog::clear()
         ui->entries->takeAt(0)->widget()->deleteLater();
     }
     addEntry();
-
-    ui->checkBoxCustomFee->setChecked(false);
-    ui->customFee->setValue(ASYNC_RPC_OPERATION_DEFAULT_MINERS_FEE);
-    ui->customFee->setEnabled(false);
 
     updateTabsAndLabels();
 }
@@ -461,7 +499,6 @@ void SendZCoinsDialog::setBalance(const CAmount& balance, const CAmount& unconfi
 void SendZCoinsDialog::updateDisplayUnit()
 {
     setBalance(0, 0, 0, 0, 0, 0, model->getTBalance(), model->getZBalance(false), model->getUnshielded());
-    ui->customFee->setDisplayUnit(model->getOptionsModel()->getDisplayUnit());
 }
 
 void SendZCoinsDialog::processSendCoinsReturn(const WalletModel::SendCoinsReturn &sendCoinsReturn, const QString &msgArg)
@@ -514,20 +551,10 @@ void SendZCoinsDialog::processSendCoinsReturn(const WalletModel::SendCoinsReturn
     Q_EMIT message(tr("Send Coins"), msgParams.first, msgParams.second);
 }
 
-void SendZCoinsDialog::updateFeeSectionControls()
-{
-    ui->customFee->setEnabled(ui->checkBoxCustomFee->isChecked());
-    if(!ui->checkBoxCustomFee->isChecked())
-        ui->customFee->setValue(ASYNC_RPC_OPERATION_DEFAULT_MINERS_FEE);
-}
-
 void SendZCoinsDialog::updateGlobalFeeVariables()
 {
     nTxConfirmTarget = defaultZConfirmTarget;
-    payTxFee = CFeeRate(ui->customFee->value());
-
-    // if user has selected to set a minimum absolute fee, pass the value to coincontrol
-    nMinimumTotalFee = ui->checkBoxCustomFee->isChecked() ? ui->customFee->value() : ASYNC_RPC_OPERATION_DEFAULT_MINERS_FEE;
+    payTxFee = CFeeRate(ASYNC_RPC_OPERATION_DEFAULT_MINERS_FEE);
 }
 
 // Coin Control: copy label "Amount" to clipboard
@@ -587,9 +614,6 @@ void SendZCoinsDialog::coinControlUpdateLabels()
     if (!model || !model->getOptionsModel())
         return;
 
-    // only enable the feature if inputs are selected
-    ui->checkBoxCustomFee->setEnabled(!ui->coinSelectionText->text().isEmpty());
-
     // set pay amounts
     SendZCoinsDialog::payAmounts.clear();
     for(int i = 0; i < ui->entries->count(); ++i)
@@ -648,13 +672,7 @@ void SendZCoinsDialog::updateLabels()
     nAmount += inputAmount;
 
     // Fee
-    if ((ui->checkBoxCustomFee->isChecked()) && (nMinimumTotalFee == 0))
-        nPayFee = 0;
-    else
-        nPayFee = ASYNC_RPC_OPERATION_DEFAULT_MINERS_FEE;
-
-    if (nPayFee > 0 && nMinimumTotalFee > nPayFee)
-        nPayFee = nMinimumTotalFee;
+    nPayFee = ASYNC_RPC_OPERATION_DEFAULT_MINERS_FEE;
 
     if (nPayAmount > 0)
     {

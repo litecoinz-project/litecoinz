@@ -294,6 +294,15 @@ BOOST_AUTO_TEST_CASE(rpc_wallet)
     BOOST_CHECK_NO_THROW(CallRPC("getblock 0 2"));
     BOOST_CHECK_THROW(CallRPC("getblock 0 -1"), runtime_error); // bad verbosity
     BOOST_CHECK_THROW(CallRPC("getblock 0 3"), runtime_error); // bad verbosity
+
+    /*
+     * migration (sprout to sapling)
+     */
+    BOOST_CHECK_NO_THROW(CallRPC("z_setmigration true"));
+    BOOST_CHECK_NO_THROW(CallRPC("z_setmigration false"));
+    BOOST_CHECK_THROW(CallRPC("z_setmigration"), runtime_error);
+    BOOST_CHECK_THROW(CallRPC("z_setmigration nonboolean"), runtime_error);
+    BOOST_CHECK_THROW(CallRPC("z_setmigration 1"), runtime_error);
 }
 
 BOOST_AUTO_TEST_CASE(rpc_wallet_getbalance)
@@ -479,7 +488,7 @@ BOOST_AUTO_TEST_CASE(rpc_wallet_z_importwallet)
     std::string testKey = EncodeSpendingKey(testSpendingKey);
 
     // create test data using the random key
-    std::string format_str = "# Wallet dump created by Zcash v0.11.2.0.z8-9155cc6-dirty (2016-08-11 11:37:00 -0700)\n"
+    std::string format_str = "# Wallet dump created by LitecoinZ v0.11.2.0.z8-9155cc6-dirty (2016-08-11 11:37:00 -0700)\n"
             "# * Created on 2016-08-12T21:55:36Z\n"
             "# * Best block at time of backup was 0 (0de0a3851fef2d433b9b4f51d4342bdd24c5ddd793eb8fba57189f07e9235d52),\n"
             "#   mined on 2009-01-03T18:15:05Z\n"
@@ -1291,7 +1300,7 @@ BOOST_AUTO_TEST_CASE(rpc_z_sendmany_taddr_to_sapling)
     pwalletMain->AddToWallet(wtx, true, NULL);
 
     // Context that z_sendmany requires
-    auto builder = TransactionBuilder(consensusParams, nextBlockHeight, pwalletMain);
+    auto builder = TransactionBuilder(consensusParams, nextBlockHeight, expiryDelta, pwalletMain);
     mtx = CreateNewContextualCMutableTransaction(consensusParams, nextBlockHeight);
 
     std::vector<SendManyRecipient> recipients = { SendManyRecipient(zaddr1, 1 * COIN, "ABCD") };

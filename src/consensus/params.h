@@ -27,6 +27,7 @@ enum UpgradeIndex {
     UPGRADE_TESTDUMMY,
     UPGRADE_OVERWINTER,
     UPGRADE_SAPLING,
+    UPGRADE_BLOSSOM,
     // NOTE: Also add new upgrades to NetworkUpgradeInfo in upgrades.cpp
     MAX_NETWORK_UPGRADES
 };
@@ -79,6 +80,26 @@ struct Params {
     /** Block height at which Equihash<144,5> becomes active */
     int nEquihashForkHeight;
     /** Proof of work parameters */
+    unsigned int nEquihashN_1 = 0;
+    unsigned int nEquihashK_1 = 0;
+    unsigned int nEquihashN_2 = 0;
+    unsigned int nEquihashK_2 = 0;
+    unsigned int EquihashN(int height = 0) const
+    {
+        if(height < nEquihashForkHeight) {
+            return nEquihashN_1;
+        } else {
+            return nEquihashN_2;
+        }
+    }
+    unsigned int EquihashK(int height = 0) const
+    {
+        if(height < nEquihashForkHeight) {
+            return nEquihashK_1;
+        } else {
+            return nEquihashK_2;
+        }
+    }
     uint256 powLimit;
     boost::optional<uint32_t> nPowAllowMinDifficultyBlocksAfterHeight;
     int64_t nPowAveragingWindow;
@@ -89,6 +110,8 @@ struct Params {
     int64_t MinActualTimespan() const { return (AveragingWindowTimespan() * (100 - nPowMaxAdjustUp  )) / 100; }
     int64_t MaxActualTimespan() const { return (AveragingWindowTimespan() * (100 + nPowMaxAdjustDown)) / 100; }
     uint256 nMinimumChainWork;
+
+    uint64_t EquihashForkHeight() const { return nEquihashForkHeight; };
 };
 } // namespace Consensus
 

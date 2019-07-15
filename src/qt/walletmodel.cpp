@@ -62,12 +62,12 @@ WalletModel::~WalletModel()
 CAmount WalletModel::getZBalance(bool showUnconfirmed) const
 {
     CAmount balance = 0;
-    std::vector<CSproutNotePlaintextEntry> sproutEntries;
+    std::vector<SproutNoteEntry> sproutEntries;
     std::vector<SaplingNoteEntry> saplingEntries;
     LOCK2(cs_main, wallet->cs_wallet);
     wallet->GetFilteredNotes(sproutEntries, saplingEntries, "", 1, true, showUnconfirmed);
     for (auto & entry : sproutEntries) {
-        balance += CAmount(entry.plaintext.value());
+        balance += CAmount(entry.note.value());
     }
     for (auto & entry : saplingEntries) {
         balance += CAmount(entry.note.value());
@@ -247,15 +247,11 @@ bool WalletModel::validateAddress(const QString &address)
 
 bool WalletModel::validateZAddress(const QString &address)
 {
-    bool isZaddr = false;
-
     // Validate the passed LitecoinZ zaddress
-    libzcash::PaymentAddress dest = DecodePaymentAddress(address.toStdString());
-    if (IsValidPaymentAddress(dest)) {
-        isZaddr = true;
-    }
+    auto dest = DecodePaymentAddress(address.toStdString());
+    bool isValid = IsValidPaymentAddress(dest);
 
-    if (isZaddr)
+    if (isValid)
         return QValidator::Acceptable;
 
     return QValidator::Invalid;
@@ -486,7 +482,7 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &tran
         transaction_array.append(&(ssTx[0]), ssTx.size());
     }
 
-    // Add addresses / update labels that we've sent to to the address book,
+    // Add addresses / update labels that we've sent to the address book,
     // and emit coinsSent signal for each recipient
     Q_FOREACH(const SendCoinsRecipient &rcp, transaction.getRecipients())
     {

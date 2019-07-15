@@ -9,6 +9,7 @@ from decimal import Decimal
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_equal, get_coinbase_address, \
     initialize_chain_clean, start_nodes, wait_and_assert_operationid_status
+from mergetoaddress_helper import assert_mergetoaddress_exception
 
 
 class MergeToAddressMixedNotes(BitcoinTestFramework):
@@ -38,6 +39,13 @@ class MergeToAddressMixedNotes(BitcoinTestFramework):
         wait_and_assert_operationid_status(self.nodes[0], opid)
         self.nodes[0].generate(1)
         self.sync_all()
+        assert_equal(self.nodes[0].z_getbalance(sproutAddr), Decimal('10'))
+        assert_equal(self.nodes[0].z_getbalance(saplingAddr), Decimal('0'))
+        assert_equal(Decimal(self.nodes[1].z_gettotalbalance()["transparent"]), Decimal('0'))
+        # Make sure we cannot use "ANY_SPROUT" and "ANY_SAPLING" even if we only have Sprout Notes
+        assert_mergetoaddress_exception(
+            "Cannot send from both Sprout and Sapling addresses using z_mergetoaddress",
+            lambda: self.nodes[0].z_mergetoaddress(["ANY_SPROUT", "ANY_SAPLING"], t_addr))
         opid = self.nodes[0].z_sendmany(coinbase_addr, [{"address": saplingAddr, "amount": Decimal('10')}], 1, 0)
         wait_and_assert_operationid_status(self.nodes[0], opid)
         self.nodes[0].generate(1)
@@ -45,7 +53,7 @@ class MergeToAddressMixedNotes(BitcoinTestFramework):
 
         assert_equal(Decimal(self.nodes[1].z_gettotalbalance()["transparent"]), Decimal('0'))
 
-        # Send to t_addr from sprout
+        # Merge Sprout -> taddr
         result = self.nodes[0].z_mergetoaddress(["ANY_SPROUT"], t_addr, 0)
         wait_and_assert_operationid_status(self.nodes[0], result['opid'])
         self.nodes[0].generate(1)
@@ -55,7 +63,11 @@ class MergeToAddressMixedNotes(BitcoinTestFramework):
         assert_equal(self.nodes[0].z_getbalance(saplingAddr), Decimal('10'))
         assert_equal(Decimal(self.nodes[1].z_gettotalbalance()["transparent"]), Decimal('10'))
 
-        # Send to t_addr from sapling
+        # Make sure we cannot use "ANY_SPROUT" and "ANY_SAPLING" even if we only have Sapling Notes
+        assert_mergetoaddress_exception(
+            "Cannot send from both Sprout and Sapling addresses using z_mergetoaddress",
+            lambda: self.nodes[0].z_mergetoaddress(["ANY_SPROUT", "ANY_SAPLING"], t_addr))
+        # Merge Sapling -> taddr
         result = self.nodes[0].z_mergetoaddress(["ANY_SAPLING"], t_addr, 0)
         wait_and_assert_operationid_status(self.nodes[0], result['opid'])
         self.nodes[0].generate(1)

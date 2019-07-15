@@ -50,6 +50,7 @@ std::string TransactionBuilderResult::GetError() {
 TransactionBuilder::TransactionBuilder(
     const Consensus::Params& consensusParams,
     int nHeight,
+    int nExpiryDelta,
     CKeyStore* keystore,
     ZCJoinSplit* sproutParams,
     CCoinsViewCache* coinsView,
@@ -61,7 +62,7 @@ TransactionBuilder::TransactionBuilder(
     coinsView(coinsView),
     cs_coinsView(cs_coinsView)
 {
-    mtx = CreateNewContextualCMutableTransaction(consensusParams, nHeight);
+    mtx = CreateNewContextualCMutableTransaction(consensusParams, nHeight, nExpiryDelta);
 }
 
 // This exception is thrown in certain scenarios when building JoinSplits fails.
@@ -224,6 +225,7 @@ TransactionBuilderResult TransactionBuilder::Build()
     //
 
     if (change > 0) {
+        // Send change to the specified change address. If no change address
         // was set, send change to the first Sapling address given as input
         // if any; otherwise the first Sprout address given as input.
         // (A t-address can only be used as the change address if explicitly set.)
@@ -524,6 +526,10 @@ void TransactionBuilder::CreateJSDescriptions()
             // Update tree state with previous joinsplit
             SproutMerkleTree tree;
             {
+                // assert that coinsView is not null
+                assert(coinsView);
+                // We do not check cs_coinView because we do not set this in testing
+                // assert(cs_coinsView);
                 LOCK(cs_coinsView);
                 auto it = intermediates.find(prevJoinSplit.anchor);
                 if (it != intermediates.end()) {
@@ -673,7 +679,7 @@ void TransactionBuilder::CreateJSDescription(
     std::array<size_t, ZC_NUM_JS_INPUTS>& inputMap,
     std::array<size_t, ZC_NUM_JS_OUTPUTS>& outputMap)
 {
-    LogPrint("zrpcunsafe", "%s: creating joinsplit at index %d (vpub_old=%s, vpub_new=%s, in[0]=%s, in[1]=%s, out[0]=%s, out[1]=%s)\n",
+    LogPrint("zrpcunsafe", "CreateJSDescription: creating joinsplit at index %d (vpub_old=%s, vpub_new=%s, in[0]=%s, in[1]=%s, out[0]=%s, out[1]=%s)\n",
         mtx.vjoinsplit.size(),
         FormatMoney(vpub_old), FormatMoney(vpub_new),
         FormatMoney(vjsin[0].note.value()), FormatMoney(vjsin[1].note.value()),

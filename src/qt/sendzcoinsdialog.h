@@ -53,9 +53,6 @@ public:
 
     static QList<CAmount> payAmounts;
 
-    //! Minimum absolute fee (not per kilobyte)
-    CAmount nMinimumTotalFee;
-
     CAmount inputAmount;
     QString inputAddress;
 
@@ -91,7 +88,6 @@ private Q_SLOTS:
     void coinControlClipboardAfterFee();
     void clipboardLowOutput();
     void coinControlClipboardChange();
-    void updateFeeSectionControls();
     void updateGlobalFeeVariables();
 
 Q_SIGNALS:

@@ -1,4 +1,4 @@
-# bash programmable completion for litecoinzd(1)
+# bash programmable completion for litecoinzd(1) and litecoinz-qt(1)
 # Copyright (c) 2012-2017 The Bitcoin Core developers
 # Copyright (c) 2016-2017 The Zcash developers
 # Copyright (c) 2017-2018 The LitecoinZ developers
