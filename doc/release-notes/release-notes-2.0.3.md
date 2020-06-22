@@ -1,4 +1,4 @@
 Notable changes
 ===============
 
-Bump APPROX_RELEASE_HEIGHT
+Fix of CVE-2017-18350

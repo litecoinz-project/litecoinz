@@ -1,5 +1,5 @@
 ---
-name: "litecoinz-core-osx-2.0.3"
+name: "litecoinz-core-osx-2.0.4"
 enable_cache: true
 suites:
 - "bionic"
